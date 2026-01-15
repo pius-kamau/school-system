@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Teachers</title>
+  </head>
+  <body>
+    <h1>Teacher List</h1>
+    <a href="/teachers/new">Add Teacher</a>
+    <table border="1" cellpadding="5">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Subject</th>
+        <th>Phone</th>
+        <th>Email</th>
+      </tr>
+      <% teachers.forEach(t => { %>
+      <tr>
+        <td><%= t.id %></td>
+        <td><%= t.name %></td>
+        <td><%= t.subject %></td>
+        <td><%= t.phone %></td>
+        <td><%= t.email %></td>
+      </tr>
+      <% }) %>
+    </table>
+  </body>
+</html>

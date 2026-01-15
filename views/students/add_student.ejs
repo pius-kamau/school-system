@@ -1,0 +1,93 @@
+<div class="section">
+  <h2>Add New Student</h2>
+  <form
+    method="POST"
+    action="/students/add"
+    style="margin-top: 20px; max-width: 500px"
+  >
+    <label>Name:</label>
+    <input
+      type="text"
+      name="name"
+      required
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      "
+    />
+
+    <label>Gender:</label>
+    <select
+      name="gender"
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      "
+    >
+      <option>Male</option>
+      <option>Female</option>
+    </select>
+
+    <label>Class:</label>
+    <input
+      type="text"
+      name="class_name"
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      "
+    />
+
+    <label>Guardian Name:</label>
+    <input
+      type="text"
+      name="guardian_name"
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      "
+    />
+
+    <label>Date of Birth:</label>
+    <input
+      type="date"
+      name="dob"
+      style="
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+      "
+    />
+
+    <br />
+    <button
+      type="submit"
+      style="
+        margin-top: 10px;
+        background: #ff416c;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      "
+    >
+      Save
+    </button>
+  </form>
+</div>

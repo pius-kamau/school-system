@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Attendance - School System</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+      }
+      .container {
+        max-width: 800px;
+        background: white;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+      }
+      th {
+        background-color: #007bff;
+        color: white;
+      }
+      button {
+        padding: 10px 15px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 5px;
+      }
+      button:hover {
+        background-color: #218838;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Mark Attendance for <%= today %></h2>
+
+      <form method="POST" action="/attendance">
+        <input type="hidden" name="attendanceDate" value="<%= today %>" />
+
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+          </tr>
+          <% students.forEach(student => { %>
+          <tr>
+            <td><%= student.id %></td>
+            <td><%= student.name %></td>
+            <td>
+              <label
+                ><input
+                  type="radio"
+                  name="status_<%= student.id %>"
+                  value="Present"
+                />
+                Present</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="status_<%= student.id %>"
+                  value="Absent"
+                />
+                Absent</label
+              >
+            </td>
+          </tr>
+          <% }) %>
+        </table>
+
+        <br />
+        <button type="submit">Save Attendance</button>
+      </form>
+    </div>
+  </body>
+</html>

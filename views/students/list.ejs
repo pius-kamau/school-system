@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        padding: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 600;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 12px 24px;
+        background: white;
+        color: #4f46e5;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-success {
+        background: #10b981;
+        color: white;
+      }
+
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .btn-warning {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      .search-bar {
+        margin-bottom: 30px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        padding: 12px 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 16px;
+      }
+
+      .search-bar button {
+        padding: 12px 24px;
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th {
+        background: #f3f4f6;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      td {
+        padding: 15px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #4b5563;
+      }
+
+      tr:hover {
+        background: #f9fafb;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .no-students {
+        text-align: center;
+        padding: 50px;
+        color: #6b7280;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #4f46e5;
+      }
+
+      /* Photo Styles - ADDED */
+      .student-photo {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #4f46e5;
+      }
+
+      .photo-placeholder {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        border: 2px dashed #d1d5db;
+        font-size: 20px;
+      }
+
+      .photo-cell {
+        text-align: center;
+        width: 70px;
+      }
+
+      .stat-card h3 {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .stat-card p {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1f2937;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📚 Student Management</h1>
+        <a href="/students/new" class="btn">➕ Add New Student</a>
+      </div>
+
+      <div class="content">
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Total Students</h3>
+            <p><%= students.length %></p>
+          </div>
+          <div class="stat-card">
+            <h3>Active Students</h3>
+            <p><%= students.length %></p>
+          </div>
+          <div class="stat-card">
+            <h3>Male Students</h3>
+            <p><%= students.filter(s => s.gender === 'Male').length %></p>
+          </div>
+          <div class="stat-card">
+            <h3>Female Students</h3>
+            <p><%= students.filter(s => s.gender === 'Female').length %></p>
+          </div>
+        </div>
+
+        <div class="search-bar">
+          <input
+            type="text"
+            placeholder="Search students by name, class, or guardian..."
+            id="searchInput"
+          />
+          <button onclick="searchStudents()">Search</button>
+        </div>
+
+        <div class="table-container">
+          <% if (students.length > 0) { %>
+          <table id="studentsTable">
+            <thead>
+              <tr>
+                <th>Photo</th>
+                <!-- ADDED THIS COLUMN -->
+                <th>ID</th>
+                <th>Name</th>
+                <th>Gender</th>
+                <th>Class</th>
+                <th>Guardian</th>
+                <th>Date of Birth</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% students.forEach(student => { %>
+              <tr>
+                <td class="photo-cell">
+                  <!-- ADDED THIS CELL -->
+                  <% if (student.photo) { %>
+                  <img
+                    src="<%= student.photo %>"
+                    alt="<%= student.name %>"
+                    class="student-photo"
+                  />
+                  <% } else { %>
+                  <div class="photo-placeholder">👤</div>
+                  <% } %>
+                </td>
+                <td><%= student.id %></td>
+                <td><strong><%= student.name %></strong></td>
+                <td><%= student.gender || 'N/A' %></td>
+                <td><%= student.class || 'N/A' %></td>
+                <td><%= student.guardian_name || 'N/A' %></td>
+                <td><%= student.dob || 'N/A' %></td>
+                <td>
+                  <div class="action-buttons">
+                    <a
+                      href="/students/<%= student.id %>"
+                      class="action-btn"
+                      style="background: #3b82f6; color: white"
+                      >👁 View</a
+                    >
+                    <a
+                      href="/students/edit/<%= student.id %>"
+                      class="action-btn"
+                      style="background: #f59e0b; color: white"
+                      >✏️ Edit</a
+                    >
+                    <a
+                      href="/students/delete/<%= student.id %>"
+                      class="action-btn"
+                      style="background: #ef4444; color: white"
+                      >🗑 Delete</a
+                    >
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+          <div class="no-students">
+            <h2>No students found</h2>
+            <p>Click "Add New Student" to add your first student record.</p>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function searchStudents() {
+        const input = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const rows = document.querySelectorAll("#studentsTable tbody tr");
+
+        rows.forEach((row) => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(input) ? "" : "none";
+        });
+      }
+
+      // Make search work on Enter key
+      document
+        .getElementById("searchInput")
+        .addEventListener("keyup", function (event) {
+          if (event.key === "Enter") {
+            searchStudents();
+          }
+        });
+    </script>
+  </body>
+</html>

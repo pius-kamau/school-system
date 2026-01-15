@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title || 'Dashboard' %> — Offline School System</title>
+    <style>
+      :root {
+        --primary: #ff416c;
+        --secondary: #ff4b2b;
+        --sidebar-bg: rgba(30, 8, 60, 0.9);
+        --header-bg: linear-gradient(90deg, #2e0854, #1a0033);
+        --text-light: #f8fafc;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        height: 100vh;
+        display: flex;
+        overflow: hidden;
+        color: var(--text-light);
+        background: radial-gradient(circle at top left, #2e0854, #1a0033);
+      }
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background: var(--sidebar-bg);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        padding: 40px 20px;
+        box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 50px;
+      }
+      .nav-item {
+        text-decoration: none;
+        color: #cbd5e1;
+        padding: 12px 18px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: all 0.3s;
+        display: block;
+      }
+      .nav-item:hover,
+      .nav-item.active {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+      }
+      /* Main */
+      .main {
+        margin-left: 250px;
+        flex: 1;
+        background: #ffffff;
+        color: #1e293b;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      header {
+        background: var(--header-bg);
+        padding: 25px 40px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      }
+      header h1 {
+        font-size: 1.7rem;
+        font-weight: 700;
+      }
+      .role-tag {
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        color: #fff;
+        padding: 6px 16px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: 0 3px 10px rgba(255, 65, 108, 0.4);
+      }
+      .content-section {
+        flex: 1;
+        padding: 40px;
+        background: #fff;
+        color: #1e293b;
+        animation: fadeUp 0.4s ease;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      footer {
+        color: #94a3b8;
+        text-align: center;
+        font-size: 0.85rem;
+        padding: 20px;
+        border-top: 1px solid #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo">School Panel</div>
+      <a href="/dashboard" class="nav-item" data-title="Dashboard">Home</a>
+      <a href="/students" class="nav-item" data-title="Students">Students</a>
+      <a href="/teachers" class="nav-item" data-title="Teachers">Teachers</a>
+      <a href="/attendance" class="nav-item" data-title="Attendance"
+        >Attendance</a
+      >
+      <a href="/fees" class="nav-item" data-title="Fees">Fees</a>
+      <a href="/reports" class="nav-item" data-title="Reports">Reports</a>
+      <a href="/auth/logout" class="nav-item" data-title="Logout">Logout</a>
+    </div>
+
+    <div class="main">
+      <header>
+        <h1 id="page-title"><%= title || 'Dashboard' %></h1>
+        <span class="role-tag"><%= user ? user.role : 'Viewer' %></span>
+      </header>
+
+      <div class="content-section" id="main-content">
+        <% include(content) %>
+      </div>
+
+      <footer>
+        © <%= new Date().getFullYear() %> Offline School System — Professional
+        Edition
+      </footer>
+    </div>
+
+    <script>
+      const navLinks = document.querySelectorAll(".nav-item");
+      const pageTitle = document.getElementById("page-title");
+      navLinks.forEach((link) => {
+        link.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const url = link.getAttribute("href");
+          const newTitle = link.dataset.title || "Dashboard";
+          const res = await fetch(url);
+          const html = await res.text();
+          const temp = document.createElement("div");
+          temp.innerHTML = html;
+          const newContent =
+            temp.querySelector("#main-content")?.innerHTML || html;
+          document.querySelector("#main-content").innerHTML = newContent;
+          pageTitle.textContent = newTitle;
+          document.title = `${newTitle} — Offline School System`;
+          navLinks.forEach((l) => l.classList.remove("active"));
+          link.classList.add("active");
+          history.pushState({}, "", url);
+        });
+      });
+    </script>
+  </body>
+</html>

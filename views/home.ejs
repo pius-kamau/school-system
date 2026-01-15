@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>School Management System</title>
+    <style>
+      :root {
+        --primary: #ff416c;
+        --secondary: #ff4b2b;
+        --bg-dark: #1a0033;
+        --bg-accent: #2e0854;
+        --text-light: #f8fafc;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        height: 100vh;
+        background: radial-gradient(
+          circle at top left,
+          var(--bg-accent),
+          var(--bg-dark)
+        );
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-light);
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* Decorative blurred shapes */
+      body::before,
+      body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        opacity: 0.1;
+        z-index: 0;
+      }
+
+      body::before {
+        width: 700px;
+        height: 700px;
+        top: -200px;
+        left: -150px;
+        background: var(--secondary);
+      }
+
+      body::after {
+        width: 500px;
+        height: 500px;
+        bottom: -100px;
+        right: -150px;
+        background: var(--primary);
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        max-width: 700px;
+        width: 90%;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(25px) saturate(1.3);
+        border-radius: 20px;
+        padding: 80px 60px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      h1 {
+        font-size: 2.8rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 1rem;
+        color: #d1d5db;
+        margin-bottom: 40px;
+        line-height: 1.6;
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      a.btn {
+        text-decoration: none;
+        padding: 14px 36px;
+        border-radius: 50px;
+        color: #fff;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 15px rgba(255, 75, 43, 0.3);
+      }
+
+      a.btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(255, 75, 43, 0.5);
+      }
+
+      footer {
+        margin-top: 60px;
+        font-size: 0.85rem;
+        color: #a5b4fc;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 50px 30px;
+        }
+        h1 {
+          font-size: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>School Management System</h1>
+      <p>
+        Manage your school effortlessly — from admissions to attendance, all
+        without internet. Built for speed, reliability, and style in one
+        powerful offline dashboard.
+      </p>
+
+      <div class="buttons">
+        <a href="/auth/login" class="btn">Admin</a>
+        <a href="/students" class="btn">Students</a>
+        <a href="/teachers" class="btn">Teachers</a>
+      </div>
+
+      <footer>
+        © <%= new Date().getFullYear() %> School System — Powered by Piteh
+        Technologies
+      </footer>
+    </div>
+  </body>
+</html>
