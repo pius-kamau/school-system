@@ -25,15 +25,24 @@ db.serialize(() => {
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )`);
 
-  // Teachers
-  db.run(`CREATE TABLE IF NOT EXISTS teachers (
+  // Teachers table with enhanced columns
+db.run(`CREATE TABLE IF NOT EXISTS teachers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     subject TEXT,
     phone TEXT,
-    email TEXT
-  )`);
-
+    email TEXT,
+    address TEXT,
+    qualification TEXT,
+    experience TEXT,
+    gender TEXT,
+    dob TEXT,
+    date_of_joining TEXT,
+    salary TEXT,
+    photo TEXT,
+    status TEXT DEFAULT 'Active',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)`);
   // Attendance
   db.run(`CREATE TABLE IF NOT EXISTS attendance (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -13,11 +13,31 @@ const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
+// --- Session Setup (MUST COME FIRST) ---
+app.use(
+  session({
+    secret: 'school-secret-key-change-this',
+    resave: false,
+    saveUninitialized: false, // Changed from true to false
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      secure: false,
+      httpOnly: true
+    }
+  })
+);
+
+// Add debugging middleware
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('   Session ID:', req.sessionID);
+  console.log('   Session user:', req.session.user || 'No user');
+  next();
+});
+
 // --- Middleware Setup ---
 app.use(express.urlencoded({ extended: true })); // parse form submissions
 app.use(express.static('public'));
-app.use('/fees', isAuthenticated, authorizeRoles('Admin', 'Accountant'), feesRoutes);
-app.use('/reports', isAuthenticated, authorizeRoles('Admin', 'Accountant', 'Teacher'), reportsRoutes);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -47,14 +67,6 @@ const upload = multer({
         }
     }
 });
-// --- Session Setup (must come BEFORE routes) ---
-app.use(
-  session({
-    secret: 'school-secret-key',
-    resave: false,
-    saveUninitialized: true,
-  })
-);
 
 // --- Database Connection ---
 const db = new sqlite3.Database('./database.sqlite', (err) => {
@@ -63,17 +75,42 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
 });
 
 // --- Authentication & Routes ---
+// PUBLIC ROUTES (no auth needed)
 app.use('/auth', authRoutes);
+
+// PROTECTED ROUTES (auth required)
 app.use('/students', isAuthenticated, authorizeRoles('Admin', 'Clerk', 'Teacher'), studentRoutes);
 app.use('/teachers', isAuthenticated, authorizeRoles('Admin'), teacherRoutes);
 app.use('/attendance', isAuthenticated, authorizeRoles('Admin', 'Teacher'), attendanceRoutes);
+app.use('/fees', isAuthenticated, authorizeRoles('Admin', 'Accountant'), feesRoutes);
+app.use('/reports', isAuthenticated, authorizeRoles('Admin', 'Accountant', 'Teacher'), reportsRoutes);
 
-/// --- Dashboard (Protected Route) ---
-app.get('/dashboard', (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/auth/login');
+// Test route to check session
+app.get('/session-test', (req, res) => {
+  if (!req.session.views) {
+    req.session.views = 1;
+  } else {
+    req.session.views++;
   }
   
+  req.session.save((err) => {
+    if (err) {
+      console.error('Session save error:', err);
+      return res.status(500).send('Session error');
+    }
+    
+    res.send(`
+      <h1>Session Test</h1>
+      <p>Session ID: ${req.sessionID}</p>
+      <p>Visit count: ${req.session.views}</p>
+      <p>User: ${JSON.stringify(req.session.user)}</p>
+      <p><a href="/session-test">Refresh</a></p>
+    `);
+  });
+});
+
+/// --- Dashboard (Protected Route) ---
+app.get('/dashboard', isAuthenticated, (req, res) => {
   const db = new sqlite3.Database('./database.sqlite');
   const user = req.session.user;
   
@@ -139,10 +176,15 @@ app.get('/dashboard', (req, res) => {
 
 // --- Home Page ---
 app.get('/', (req, res) => {
+  // If already logged in, go to dashboard
+  if (req.session.user) {
+    return res.redirect('/dashboard');
+  }
   res.render('home');
 });
 
 // --- Start Server ---
 app.listen(3000, () => {
   console.log('🏫 School System running at http://localhost:3000');
+  console.log('📝 Session debugging enabled');
 });

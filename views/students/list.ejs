@@ -3,156 +3,67 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Student Management</title>
+    <title>Students Management</title>
     <style>
+      :root {
+        --primary: #ff416c;
+        --bg-dark: #1a0033;
+        --text-light: #f8fafc;
+        --card-bg: #ffffff;
+        --body-bg: #f8fafc;
+      }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Inter", Arial, sans-serif;
       }
 
       body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
+        background-color: var(--body-bg);
+        color: #333333;
       }
 
+      /* Container */
       .container {
         max-width: 1200px;
         margin: 0 auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
+        padding: 20px;
       }
 
+      /* Header */
       .header {
-        background: linear-gradient(135deg, #4f46e5, #7c3aed);
-        color: white;
-        padding: 30px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eaeaea;
       }
 
       .header h1 {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 600;
+        color: #333333;
       }
 
       .btn {
-        display: inline-block;
-        padding: 12px 24px;
-        background: white;
-        color: #4f46e5;
+        padding: 10px 20px;
+        background: var(--primary);
+        color: var(--text-light);
         text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 14px;
       }
 
       .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        opacity: 0.9;
       }
 
-      .btn-success {
-        background: #10b981;
-        color: white;
-      }
-
-      .btn-danger {
-        background: #ef4444;
-        color: white;
-      }
-
-      .btn-warning {
-        background: #f59e0b;
-        color: white;
-      }
-
-      .content {
-        padding: 30px;
-      }
-
-      .search-bar {
-        margin-bottom: 30px;
-        display: flex;
-        gap: 10px;
-      }
-
-      .search-bar input {
-        flex: 1;
-        padding: 12px 15px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 16px;
-      }
-
-      .search-bar button {
-        padding: 12px 24px;
-        background: #4f46e5;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-
-      .table-container {
-        overflow-x: auto;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-      }
-
-      th {
-        background: #f3f4f6;
-        padding: 15px;
-        text-align: left;
-        font-weight: 600;
-        color: #374151;
-        border-bottom: 2px solid #e5e7eb;
-      }
-
-      td {
-        padding: 15px;
-        border-bottom: 1px solid #e5e7eb;
-        color: #4b5563;
-      }
-
-      tr:hover {
-        background: #f9fafb;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 8px;
-      }
-
-      .action-btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-      }
-
-      .action-btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .no-students {
-        text-align: center;
-        padding: 50px;
-        color: #6b7280;
-      }
-
-      .stats {
+      /* Stats Grid */
+      .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 20px;
@@ -160,160 +71,293 @@
       }
 
       .stat-card {
-        background: white;
-        border-radius: 10px;
+        background: var(--card-bg);
         padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #4f46e5;
-      }
-
-      /* Photo Styles - ADDED */
-      .student-photo {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid #4f46e5;
-      }
-
-      .photo-placeholder {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: #f3f4f6;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #9ca3af;
-        border: 2px dashed #d1d5db;
-        font-size: 20px;
-      }
-
-      .photo-cell {
-        text-align: center;
-        width: 70px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid var(--primary);
       }
 
       .stat-card h3 {
-        color: #6b7280;
-        font-size: 14px;
-        margin-bottom: 10px;
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: #333333;
       }
 
       .stat-card p {
-        font-size: 24px;
+        color: #666666;
+        font-size: 14px;
+      }
+
+      /* Search Bar */
+      .search-bar {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .search-bar input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .search-bar button {
+        padding: 10px 20px;
+        background: var(--primary);
+        color: var(--text-light);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      /* Table */
+      .table-container {
+        overflow-x: auto;
+        background: var(--card-bg);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 2px solid #eaeaea;
+        color: #666666;
         font-weight: 600;
-        color: #1f2937;
+        font-size: 14px;
+      }
+
+      td {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333333;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover {
+        background: #f9f9f9;
+      }
+
+      /* Student Photo */
+      .student-photo {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--primary);
+      }
+
+      .photo-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 16px;
+      }
+
+      /* Status Badge */
+      .status-badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+      }
+
+      .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+      }
+
+      .status-inactive {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+
+      .action-btn {
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .action-btn.view {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .action-btn.edit {
+        background: #f59e0b;
+        color: white;
+      }
+
+      .action-btn.delete {
+        background: #ef4444;
+        color: white;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999999;
+      }
+
+      .empty-state p {
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      /* Back Button */
+      .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-btn:hover {
+        text-decoration: underline;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>📚 Student Management</h1>
+        <h1>👨‍🎓 Students Management</h1>
         <a href="/students/new" class="btn">➕ Add New Student</a>
       </div>
 
-      <div class="content">
-        <div class="stats">
-          <div class="stat-card">
-            <h3>Total Students</h3>
-            <p><%= students.length %></p>
-          </div>
-          <div class="stat-card">
-            <h3>Active Students</h3>
-            <p><%= students.length %></p>
-          </div>
-          <div class="stat-card">
-            <h3>Male Students</h3>
-            <p><%= students.filter(s => s.gender === 'Male').length %></p>
-          </div>
-          <div class="stat-card">
-            <h3>Female Students</h3>
-            <p><%= students.filter(s => s.gender === 'Female').length %></p>
-          </div>
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3><%= students.length %></h3>
+          <p>Total Students</p>
         </div>
-
-        <div class="search-bar">
-          <input
-            type="text"
-            placeholder="Search students by name, class, or guardian..."
-            id="searchInput"
-          />
-          <button onclick="searchStudents()">Search</button>
+        <div class="stat-card">
+          <h3>
+            <%= students.filter(s => s.status === 'Active' || !s.status).length
+            %>
+          </h3>
+          <p>Active Students</p>
         </div>
-
-        <div class="table-container">
-          <% if (students.length > 0) { %>
-          <table id="studentsTable">
-            <thead>
-              <tr>
-                <th>Photo</th>
-                <!-- ADDED THIS COLUMN -->
-                <th>ID</th>
-                <th>Name</th>
-                <th>Gender</th>
-                <th>Class</th>
-                <th>Guardian</th>
-                <th>Date of Birth</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% students.forEach(student => { %>
-              <tr>
-                <td class="photo-cell">
-                  <!-- ADDED THIS CELL -->
-                  <% if (student.photo) { %>
-                  <img
-                    src="<%= student.photo %>"
-                    alt="<%= student.name %>"
-                    class="student-photo"
-                  />
-                  <% } else { %>
-                  <div class="photo-placeholder">👤</div>
-                  <% } %>
-                </td>
-                <td><%= student.id %></td>
-                <td><strong><%= student.name %></strong></td>
-                <td><%= student.gender || 'N/A' %></td>
-                <td><%= student.class || 'N/A' %></td>
-                <td><%= student.guardian_name || 'N/A' %></td>
-                <td><%= student.dob || 'N/A' %></td>
-                <td>
-                  <div class="action-buttons">
-                    <a
-                      href="/students/<%= student.id %>"
-                      class="action-btn"
-                      style="background: #3b82f6; color: white"
-                      >👁 View</a
-                    >
-                    <a
-                      href="/students/edit/<%= student.id %>"
-                      class="action-btn"
-                      style="background: #f59e0b; color: white"
-                      >✏️ Edit</a
-                    >
-                    <a
-                      href="/students/delete/<%= student.id %>"
-                      class="action-btn"
-                      style="background: #ef4444; color: white"
-                      >🗑 Delete</a
-                    >
-                  </div>
-                </td>
-              </tr>
-              <% }) %>
-            </tbody>
-          </table>
-          <% } else { %>
-          <div class="no-students">
-            <h2>No students found</h2>
-            <p>Click "Add New Student" to add your first student record.</p>
-          </div>
-          <% } %>
+        <div class="stat-card">
+          <h3><%= students.filter(s => s.gender === 'Male').length %></h3>
+          <p>Male Students</p>
+        </div>
+        <div class="stat-card">
+          <h3><%= students.filter(s => s.gender === 'Female').length %></h3>
+          <p>Female Students</p>
         </div>
       </div>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <input
+          type="text"
+          placeholder="Search students by name, class, or guardian..."
+          id="searchInput"
+        />
+        <button onclick="searchStudents()">Search</button>
+      </div>
+
+      <!-- Students Table -->
+      <div class="table-container">
+        <% if (students.length > 0) { %>
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Name</th>
+              <th>Class</th>
+              <th>Gender</th>
+              <th>Guardian</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% students.forEach(student => { %>
+            <tr>
+              <td>
+                <% if (student.photo) { %>
+                <img
+                  src="<%= student.photo %>"
+                  alt="<%= student.name %>"
+                  class="student-photo"
+                />
+                <% } else { %>
+                <div class="photo-placeholder">👤</div>
+                <% } %>
+              </td>
+              <td><strong><%= student.name %></strong></td>
+              <td><%= student.class || 'N/A' %></td>
+              <td><%= student.gender || 'N/A' %></td>
+              <td><%= student.guardian_name || 'N/A' %></td>
+              <td>
+                <span class="status-badge status-active">
+                  <%= student.status || 'Active' %>
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <a href="/students/<%= student.id %>" class="action-btn view"
+                    >👁 View</a
+                  >
+                  <a
+                    href="/students/edit/<%= student.id %>"
+                    class="action-btn edit"
+                    >✏️ Edit</a
+                  >
+                  <a
+                    href="/students/delete/<%= student.id %>"
+                    class="action-btn delete"
+                    >🗑 Delete</a
+                  >
+                </div>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+        <% } else { %>
+        <div class="empty-state">
+          <div>👨‍🎓</div>
+          <p>
+            No students found. Click "Add New Student" to add your first
+            student.
+          </p>
+        </div>
+        <% } %>
+      </div>
+
+      <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
     </div>
 
     <script>
@@ -329,7 +373,7 @@
         });
       }
 
-      // Make search work on Enter key
+      // Search on Enter key
       document
         .getElementById("searchInput")
         .addEventListener("keyup", function (event) {

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= student.name %> - Student Profile</title>
+    <title><%= teacher.name %> - Teacher Profile</title>
     <style>
       :root {
         --primary: #ff416c;
@@ -107,13 +107,13 @@
         border: 4px solid rgba(255, 255, 255, 0.3);
       }
 
-      .student-info h2 {
+      .teacher-info h2 {
         font-size: 28px;
         font-weight: 600;
         margin-bottom: 5px;
       }
 
-      .student-id {
+      .teacher-id {
         background: rgba(255, 255, 255, 0.2);
         padding: 5px 15px;
         border-radius: 20px;
@@ -198,10 +198,10 @@
     <div class="profile-container">
       <!-- Header -->
       <div class="header">
-        <h1>👨‍🎓 Student Profile</h1>
+        <h1>👩‍🏫 Teacher Profile</h1>
         <div class="action-buttons">
-          <a href="/students" class="btn btn-back">← Back to List</a>
-          <a href="/students/edit/<%= student.id %>" class="btn btn-edit"
+          <a href="/teachers" class="btn btn-back">← Back to List</a>
+          <a href="/teachers/edit/<%= teacher.id %>" class="btn btn-edit"
             >✏️ Edit Profile</a
           >
         </div>
@@ -211,21 +211,21 @@
       <div class="profile-card">
         <!-- Profile Header -->
         <div class="profile-header">
-          <% if (student.photo) { %>
+          <% if (teacher.photo) { %>
           <img
-            src="<%= student.photo %>"
-            alt="<%= student.name %>"
+            src="<%= teacher.photo %>"
+            alt="<%= teacher.name %>"
             class="profile-photo"
           />
           <% } else { %>
           <div class="photo-placeholder">👤</div>
           <% } %>
 
-          <div class="student-info">
-            <h2><%= student.name %></h2>
-            <div class="student-id">Student ID: #<%= student.id %></div>
+          <div class="teacher-info">
+            <h2><%= teacher.name %></h2>
+            <div class="teacher-id">Teacher ID: #<%= teacher.id %></div>
             <div class="status-badge status-active">
-              <%= student.status || 'Active' %>
+              <%= teacher.status || 'Active' %>
             </div>
           </div>
         </div>
@@ -237,55 +237,61 @@
             <h3>📋 Personal Information</h3>
             <div class="info-item">
               <span class="info-label">Gender:</span>
-              <span class="info-value"><%= student.gender || 'N/A' %></span>
+              <span class="info-value"><%= teacher.gender || 'N/A' %></span>
             </div>
             <div class="info-item">
               <span class="info-label">Date of Birth:</span>
-              <span class="info-value"><%= student.dob || 'N/A' %></span>
+              <span class="info-value"><%= teacher.dob || 'N/A' %></span>
             </div>
             <div class="info-item">
-              <span class="info-label">Class/Grade:</span>
-              <span class="info-value"><%= student.class || 'N/A' %></span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Status:</span>
-              <span class="info-value"><%= student.status || 'Active' %></span>
-            </div>
-          </div>
-
-          <!-- Guardian Information -->
-          <div class="info-section">
-            <h3>👨‍👩‍👧‍👦 Guardian Information</h3>
-            <div class="info-item">
-              <span class="info-label">Guardian's Name:</span>
-              <span class="info-value"
-                ><%= student.guardian_name || 'N/A' %></span
-              >
-            </div>
-            <div class="info-item">
-              <span class="info-label">Guardian's Phone:</span>
-              <span class="info-value"
-                ><%= student.guardian_phone || 'N/A' %></span
-              >
-            </div>
-            <div class="info-item">
-              <span class="info-label">Student's Phone:</span>
-              <span class="info-value"><%= student.phone || 'N/A' %></span>
+              <span class="info-label">Phone:</span>
+              <span class="info-value"><%= teacher.phone || 'N/A' %></span>
             </div>
             <div class="info-item">
               <span class="info-label">Email:</span>
-              <span class="info-value"><%= student.email || 'N/A' %></span>
+              <span class="info-value"><%= teacher.email || 'N/A' %></span>
             </div>
             <div class="info-item">
               <span class="info-label">Address:</span>
-              <span class="info-value"><%= student.address || 'N/A' %></span>
+              <span class="info-value"><%= teacher.address || 'N/A' %></span>
+            </div>
+          </div>
+
+          <!-- Professional Information -->
+          <div class="info-section">
+            <h3>🎓 Professional Information</h3>
+            <div class="info-item">
+              <span class="info-label">Subject:</span>
+              <span class="info-value"><%= teacher.subject || 'N/A' %></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Qualification:</span>
+              <span class="info-value"
+                ><%= teacher.qualification || 'N/A' %></span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Experience:</span>
+              <span class="info-value"><%= teacher.experience || 'N/A' %></span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Date of Joining:</span>
+              <span class="info-value"
+                ><%= teacher.date_of_joining || 'N/A' %></span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Salary:</span>
+              <span class="info-value">
+                <%= teacher.salary ? 'KES ' + teacher.salary : 'N/A' %>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="back-link">
-        <a href="/students">← Back to All Students</a>
+        <a href="/teachers">← Back to All Teachers</a>
       </div>
     </div>
   </body>
