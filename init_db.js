@@ -51,6 +51,55 @@ db.run(`CREATE TABLE IF NOT EXISTS teachers (
     status TEXT,
     FOREIGN KEY(student_id) REFERENCES students(id)
   )`);
+  // In your database setup file, add these tables:
+db.run(`CREATE TABLE IF NOT EXISTS attendance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    date DATE NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('present', 'absent', 'late', 'excused')),
+    notes TEXT,
+    recorded_by INTEGER, -- teacher_id from users table
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY(recorded_by) REFERENCES users(id)
+)`);
+
+db.run(`CREATE TABLE IF NOT EXISTS classes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    grade TEXT,
+    teacher_id INTEGER,
+    academic_year TEXT DEFAULT '2024-2025',
+    FOREIGN KEY(teacher_id) REFERENCES teachers(id)
+)`);
+// In your database setup file (where you create other tables)
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./database.sqlite');
+
+db.serialize(() => {
+    // Attendance table
+    db.run(`CREATE TABLE IF NOT EXISTS attendance (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id INTEGER NOT NULL,
+        date DATE NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('present', 'absent', 'late', 'excused')),
+        notes TEXT,
+        recorded_by INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY(student_id) REFERENCES students(id) ON DELETE CASCADE
+    )`, (err) => {
+        if (err) console.error('❌ Attendance table error:', err);
+        else console.log('✅ Attendance table created/verified');
+    });
+    
+    // Add any other tables you need...
+});
+
+db.close();
+// Add class_id to students table if not exists
+db.run(`ALTER TABLE students ADD COLUMN class_id INTEGER REFERENCES classes(id)`);
+
+console.log('✅ Attendance tables created/updated!');
 
   // Exams
   db.run(`CREATE TABLE IF NOT EXISTS exams (

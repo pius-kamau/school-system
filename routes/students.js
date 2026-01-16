@@ -45,18 +45,24 @@ router.get('/', (req, res) => {
             console.error('Database error:', err);
             return res.status(500).send('Database error');
         }
-        res.render('students/list', { students: rows });
+        res.render('students/list', { 
+            students: rows,
+            user: req.session.user // Add user for navigation
+        });
     });
 });
 
-// Show new student form
+// Show new student form - FIXED: Add user and student: null
 router.get('/new', (req, res) => {
-    res.render('students/form');
+    res.render('students/form', {
+        student: null,  // ← CRITICAL: Pass null for new students
+        user: req.session.user
+    });
 });
 
-// Save new student with photo
+// Save new student with photo - FIXED: Route matches form action
 router.post('/new', upload.single('photo'), (req, res) => {
-    const { name, gender, class: studentClass, guardian_name, dob } = req.body;
+    const { name, gender, class: studentClass, guardian_name, dob, email, phone, address, status } = req.body;
     
     // Input validation
     if (!name || !studentClass) {
@@ -65,8 +71,8 @@ router.post('/new', upload.single('photo'), (req, res) => {
     
     const photoPath = req.file ? `/uploads/student-photos/${req.file.filename}` : null;
     
-    db.run('INSERT INTO students (name, gender, class, guardian_name, dob, photo) VALUES (?, ?, ?, ?, ?, ?)',
-        [name, gender, studentClass, guardian_name, dob, photoPath], 
+    db.run('INSERT INTO students (name, gender, class, guardian_name, dob, photo, email, phone, address, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [name, gender, studentClass, guardian_name, dob, photoPath, email, phone, address, status || 'Active'], 
         function(err) {
             if (err) {
                 console.error('Failed to add student:', err);
@@ -77,24 +83,27 @@ router.post('/new', upload.single('photo'), (req, res) => {
     );
 });
 
-// Show edit student form
+// Show edit student form - FIXED: Route matches form action
 router.get('/edit/:id', (req, res) => {
     const { id } = req.params;
     db.get('SELECT * FROM students WHERE id = ?', [id], (err, student) => {
         if (err || !student) {
             return res.status(404).send('Student not found');
         }
-        res.render('students/edit', { student });
+        res.render('students/form', { 
+            student: student,  // ← Pass student for editing
+            user: req.session.user
+        });
     });
 });
 
-// Update student with optional photo
+// Update student with optional photo - FIXED: Route matches form action
 router.post('/edit/:id', upload.single('photo'), (req, res) => {
     const { id } = req.params;
-    const { name, gender, class: studentClass, guardian_name, dob, remove_photo } = req.body;
+    const { name, gender, class: studentClass, guardian_name, dob, email, phone, address, status, remove_photo } = req.body;
     
     // First, get the current student to check for existing photo
-    db.get('SELECT photo FROM students WHERE id = ?', [id], (err, student) => {
+    db.get('SELECT * FROM students WHERE id = ?', [id], (err, student) => {
         if (err || !student) {
             return res.status(404).send('Student not found');
         }
@@ -123,9 +132,9 @@ router.post('/edit/:id', upload.single('photo'), (req, res) => {
             photoPath = `/uploads/student-photos/${req.file.filename}`;
         }
         
-        // Update student record
-        db.run('UPDATE students SET name = ?, gender = ?, class = ?, guardian_name = ?, dob = ?, photo = ? WHERE id = ?',
-            [name, gender, studentClass, guardian_name, dob, photoPath, id],
+        // Update student record with ALL fields
+        db.run('UPDATE students SET name = ?, gender = ?, class = ?, guardian_name = ?, dob = ?, photo = ?, email = ?, phone = ?, address = ?, status = ? WHERE id = ?',
+            [name, gender, studentClass, guardian_name, dob, photoPath, email, phone, address, status || 'Active', id],
             function(err) {
                 if (err) {
                     console.error('Failed to update student:', err);
@@ -144,7 +153,10 @@ router.get('/delete/:id', (req, res) => {
         if (err || !student) {
             return res.status(404).send('Student not found');
         }
-        res.render('students/delete', { student });
+        res.render('students/delete', { 
+            student: student,
+            user: req.session.user 
+        });
     });
 });
 
@@ -190,7 +202,10 @@ router.get('/:id', (req, res) => {
         if (err || !student) {
             return res.status(404).send('Student not found');
         }
-        res.render('students/profile', { student });
+        res.render('students/profile', { 
+            student: student,
+            user: req.session.user 
+        });
     });
 });
 

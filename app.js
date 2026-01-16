@@ -18,9 +18,9 @@ app.use(
   session({
     secret: 'school-secret-key-change-this',
     resave: false,
-    saveUninitialized: false, // Changed from true to false
+    saveUninitialized: false,
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+      maxAge: 1000 * 60 * 60 * 24,
       secure: false,
       httpOnly: true
     }
@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 });
 
 // --- Middleware Setup ---
-app.use(express.urlencoded({ extended: true })); // parse form submissions
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -54,7 +54,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: function (req, file, cb) {
         const allowedTypes = /jpeg|jpg|png|gif/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -109,7 +109,7 @@ app.get('/session-test', (req, res) => {
   });
 });
 
-/// --- Dashboard (Protected Route) ---
+// --- Dashboard (Protected Route) ---
 app.get('/dashboard', isAuthenticated, (req, res) => {
   const db = new sqlite3.Database('./database.sqlite');
   const user = req.session.user;
@@ -176,7 +176,6 @@ app.get('/dashboard', isAuthenticated, (req, res) => {
 
 // --- Home Page ---
 app.get('/', (req, res) => {
-  // If already logged in, go to dashboard
   if (req.session.user) {
     return res.redirect('/dashboard');
   }

@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance Dashboard</title>
+    <style>
+      :root {
+        --primary: #ff416c;
+        --secondary: #ff4b2b;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", Arial, sans-serif;
+      }
+
+      body {
+        background-color: #f8fafc;
+        min-height: 100vh;
+      }
+
+      /* Navigation */
+      .navbar {
+        background: var(--dark);
+        color: white;
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .nav-brand {
+        font-size: 24px;
+        font-weight: 600;
+        color: white;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .nav-link {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 5px 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        font-size: 14px;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #eaeaea;
+      }
+
+      .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .stat-card.present {
+        border-left: 5px solid var(--success);
+      }
+      .stat-card.absent {
+        border-left: 5px solid var(--danger);
+      }
+      .stat-card.late {
+        border-left: 5px solid var(--warning);
+      }
+      .stat-card.excused {
+        border-left: 5px solid var(--info);
+      }
+
+      .stat-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        margin: 10px 0;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Controls */
+      .controls-card {
+        background: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .controls-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .controls-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .date-selector {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .date-label {
+        font-weight: 500;
+        color: #555;
+      }
+
+      .date-input {
+        padding: 10px 15px;
+        border: 2px solid #eaeaea;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .date-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .quick-date-btn {
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border: 2px solid #eaeaea;
+        border-radius: 8px;
+        color: #555;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .quick-date-btn:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .bulk-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .bulk-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bulk-btn.present {
+        background: #d4edda;
+        color: #155724;
+      }
+      .bulk-btn.absent {
+        background: #f8d7da;
+        color: #721c24;
+      }
+      .bulk-btn.late {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .bulk-btn.excused {
+        background: #d1ecf1;
+        color: #0c5460;
+      }
+      .bulk-btn.save {
+        background: var(--primary);
+        color: white;
+      }
+
+      .bulk-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+      }
+
+      /* Attendance Table */
+      .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .table-header {
+        background: var(--dark);
+        color: white;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .table-title {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .table-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+      }
+
+      .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .attendance-table thead {
+        background: #f8f9fa;
+      }
+
+      .attendance-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #555;
+        border-bottom: 2px solid #eaeaea;
+      }
+
+      .attendance-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eaeaea;
+        vertical-align: middle;
+      }
+
+      .attendance-table tbody tr:hover {
+        background: #f8f9fa;
+      }
+
+      .student-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .student-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #eaeaea;
+      }
+
+      .student-details h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 3px;
+        color: #333;
+      }
+
+      .student-details p {
+        font-size: 13px;
+        color: #666;
+      }
+
+      /* Status Buttons */
+      .status-buttons {
+        display: flex;
+        gap: 5px;
+      }
+
+      .status-btn {
+        padding: 8px 15px;
+        border: 2px solid #eaeaea;
+        border-radius: 6px;
+        background: white;
+        color: #555;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .status-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .status-btn.present {
+        border-color: var(--success);
+        color: var(--success);
+      }
+      .status-btn.absent {
+        border-color: var(--danger);
+        color: var(--danger);
+      }
+      .status-btn.late {
+        border-color: var(--warning);
+        color: var(--warning);
+      }
+      .status-btn.excused {
+        border-color: var(--info);
+        color: var(--info);
+      }
+
+      .status-btn.active {
+        color: white;
+      }
+      .status-btn.present.active {
+        background: var(--success);
+      }
+      .status-btn.absent.active {
+        background: var(--danger);
+      }
+      .status-btn.late.active {
+        background: var(--warning);
+      }
+      .status-btn.excused.active {
+        background: var(--info);
+      }
+
+      /* Notes Input */
+      .notes-input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #eaeaea;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+
+      .notes-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      /* Action Buttons */
+      .action-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        transition: all 0.3s;
+      }
+
+      .action-btn.history {
+        background: #e9ecef;
+        color: #495057;
+      }
+
+      .action-btn.history:hover {
+        background: #dee2e6;
+      }
+
+      /* Footer */
+      .table-footer {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #eaeaea;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .auto-save-info {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* Toast Notification */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      .toast.success {
+        border-left: 4px solid var(--success);
+      }
+      .toast.error {
+        border-left: 4px solid var(--danger);
+      }
+      .toast.info {
+        border-left: 4px solid var(--info);
+      }
+
+      .toast-icon {
+        font-size: 20px;
+      }
+
+      .toast.success .toast-icon {
+        color: var(--success);
+      }
+      .toast.error .toast-icon {
+        color: var(--danger);
+      }
+      .toast.info .toast-icon {
+        color: var(--info);
+      }
+
+      .toast-content h4 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+
+      .toast-content p {
+        font-size: 13px;
+        color: #666;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .empty-icon {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      .empty-state h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .empty-state p {
+        font-size: 14px;
+        max-width: 400px;
+        margin: 0 auto 20px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-links {
+          flex-direction: column;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--dark);
+          padding: 20px;
+          display: none;
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .attendance-table {
+          display: block;
+          overflow-x: auto;
+        }
+
+        .status-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="/" class="nav-brand"> 🏫 School System </a>
+        <div class="nav-links">
+          <a href="/dashboard" class="nav-link">Dashboard</a>
+          <a href="/students" class="nav-link">Students</a>
+          <a href="/teachers" class="nav-link">Teachers</a>
+          <a href="/attendance/dashboard" class="nav-link active">Attendance</a>
+          <div class="user-info">
+            <span><%= user.username %></span>
+            <span>(<%= user.role %>)</span>
+          </div>
+          <a href="/logout" class="nav-link">Logout</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Header -->
+      <div class="page-header">
+        <h1 class="page-title">📅 Attendance Dashboard</h1>
+        <div class="header-actions">
+          <a href="/attendance/reports" class="action-btn history">
+            📊 Reports
+          </a>
+          <button class="bulk-btn save" onclick="saveAll()">💾 Save All</button>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-grid">
+        <div class="stat-card present">
+          <div class="stat-icon">✅</div>
+          <div class="stat-number"><%= stats.present %></div>
+          <div class="stat-label">Present Today</div>
+          <div class="stat-percentage">
+            <%= stats.presentPercentage %>% of total
+          </div>
+        </div>
+        <div class="stat-card absent">
+          <div class="stat-icon">❌</div>
+          <div class="stat-number"><%= stats.absent %></div>
+          <div class="stat-label">Absent Today</div>
+        </div>
+        <div class="stat-card late">
+          <div class="stat-icon">⏰</div>
+          <div class="stat-number"><%= stats.late %></div>
+          <div class="stat-label">Late Today</div>
+        </div>
+        <div class="stat-card excused">
+          <div class="stat-icon">📝</div>
+          <div class="stat-number"><%= stats.excused %></div>
+          <div class="stat-label">Excused Today</div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-card">
+        <div class="controls-header">
+          <h3 class="controls-title">Quick Controls</h3>
+          <div class="auto-save-info">🔄 Auto-save enabled</div>
+        </div>
+
+        <!-- Date Selector -->
+        <div class="date-selector">
+          <span class="date-label">Select Date:</span>
+          <input
+            type="date"
+            class="date-input"
+            value="<%= date %>"
+            onchange="this.form.submit()"
+            name="date"
+          />
+          <button class="quick-date-btn" onclick="goToDate('today')">
+            Today
+          </button>
+          <button class="quick-date-btn" onclick="goToDate('yesterday')">
+            Yesterday
+          </button>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="bulk-actions">
+          <button class="bulk-btn present" onclick="markAll('present')">
+            ✅ Mark All Present
+          </button>
+          <button class="bulk-btn absent" onclick="markAll('absent')">
+            ❌ Mark All Absent
+          </button>
+          <button class="bulk-btn late" onclick="markAll('late')">
+            ⏰ Mark All Late
+          </button>
+          <button class="bulk-btn excused" onclick="markAll('excused')">
+            📝 Mark All Excused
+          </button>
+        </div>
+      </div>
+
+      <!-- Attendance Table -->
+      <div class="table-container">
+        <div class="table-header">
+          <h3 class="table-title">Student Attendance</h3>
+          <div class="table-count">Total: <%= stats.total %> students</div>
+        </div>
+
+        <% if (students.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">👨‍🎓</div>
+          <h3>No Students Found</h3>
+          <p>Add students first from the Students page to mark attendance.</p>
+          <a href="/students" class="bulk-btn save">Go to Students</a>
+        </div>
+        <% } else { %>
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th width="250">Student</th>
+              <th width="300">Attendance Status</th>
+              <th>Notes</th>
+              <th width="120">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% students.forEach(student => { %>
+            <tr data-student-id="<%= student.id %>">
+              <td>
+                <div class="student-info">
+                  <img
+                    src="<%= student.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(student.name) + '&background=ff416c&color=fff' %>"
+                    alt="<%= student.name %>"
+                    class="student-avatar"
+                  />
+                  <div class="student-details">
+                    <h4><%= student.name %></h4>
+                    <p><%= student.class %> • ID: <%= student.id %></p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="status-buttons">
+                  <button
+                    class="status-btn present <%= student.status === 'present' ? 'active' : '' %>"
+                    onclick="markAttendance(<%= student.id %>, 'present')"
+                  >
+                    ✅ Present
+                  </button>
+                  <button
+                    class="status-btn absent <%= student.status === 'absent' ? 'active' : '' %>"
+                    onclick="markAttendance(<%= student.id %>, 'absent')"
+                  >
+                    ❌ Absent
+                  </button>
+                  <button
+                    class="status-btn late <%= student.status === 'late' ? 'active' : '' %>"
+                    onclick="markAttendance(<%= student.id %>, 'late')"
+                  >
+                    ⏰ Late
+                  </button>
+                  <button
+                    class="status-btn excused <%= student.status === 'excused' ? 'active' : '' %>"
+                    onclick="markAttendance(<%= student.id %>, 'excused')"
+                  >
+                    📝 Excused
+                  </button>
+                </div>
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="notes-input"
+                  placeholder="Add notes..."
+                  value="<%= student.notes || '' %>"
+                  data-student-id="<%= student.id %>"
+                  onchange="updateNotes(<%= student.id %>, this.value)"
+                />
+              </td>
+              <td>
+                <a
+                  href="/attendance/student/<%= student.id %>"
+                  class="action-btn history"
+                  title="View Attendance History"
+                >
+                  📊 History
+                </a>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+        <% } %>
+
+        <div class="table-footer">
+          <div class="auto-save-info">
+            <span>Last updated: <span id="last-updated">Just now</span></span>
+          </div>
+          <div>
+            Showing <%= students.length %> of <%= stats.total %> students
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <div class="toast-icon">ℹ️</div>
+      <div class="toast-content">
+        <h4 id="toast-title">Notification</h4>
+        <p id="toast-message">Message here</p>
+      </div>
+    </div>
+
+    <script>
+      let changes = new Map();
+      let autoSaveTimeout = null;
+
+      // Show toast notification
+      function showToast(title, message, type = "info") {
+        const toast = document.getElementById("toast");
+        const toastTitle = document.getElementById("toast-title");
+        const toastMessage = document.getElementById("toast-message");
+
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        toast.className = `toast ${type}`;
+
+        toast.classList.add("show");
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // Mark attendance for a student
+      function markAttendance(studentId, status) {
+        const row = document.querySelector(
+          `tr[data-student-id="${studentId}"]`
+        );
+        if (!row) return;
+
+        // Update UI
+        const buttons = row.querySelectorAll(".status-btn");
+        buttons.forEach((btn) => btn.classList.remove("active"));
+
+        const clickedBtn = row.querySelector(`.status-btn.${status}`);
+        if (clickedBtn) clickedBtn.classList.add("active");
+
+        // Get notes
+        const notesInput = row.querySelector(".notes-input");
+        const notes = notesInput ? notesInput.value : "";
+
+        // Store change
+        changes.set(studentId, {
+          student_id: studentId,
+          status: status,
+          notes: notes,
+          date: document.querySelector(".date-input").value,
+        });
+
+        // Update last updated time
+        updateLastUpdatedTime();
+
+        // Auto-save after delay
+        scheduleAutoSave(studentId);
+      }
+
+      // Update notes
+      function updateNotes(studentId, notes) {
+        if (changes.has(studentId)) {
+          changes.get(studentId).notes = notes;
+          scheduleAutoSave(studentId);
+        }
+      }
+
+      // Schedule auto-save
+      function scheduleAutoSave(studentId) {
+        if (autoSaveTimeout) {
+          clearTimeout(autoSaveTimeout);
+        }
+
+        autoSaveTimeout = setTimeout(() => {
+          saveAttendance(studentId);
+        }, 2000);
+      }
+
+      // Save attendance for a student
+      async function saveAttendance(studentId) {
+        if (!changes.has(studentId)) return;
+
+        const data = changes.get(studentId);
+
+        try {
+          const response = await fetch("/attendance/mark", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            changes.delete(studentId);
+            showToast("Success", "Attendance saved!", "success");
+          } else {
+            showToast("Error", result.error || "Failed to save", "error");
+          }
+        } catch (error) {
+          showToast(
+            "Error",
+            "Network error. Please check connection.",
+            "error"
+          );
+        }
+      }
+
+      // Save all changes
+      async function saveAll() {
+        if (changes.size === 0) {
+          showToast("Info", "No changes to save", "info");
+          return;
+        }
+
+        const promises = Array.from(changes.keys()).map((studentId) =>
+          saveAttendance(studentId)
+        );
+
+        try {
+          await Promise.all(promises);
+          showToast("Success", `Saved ${changes.size} records`, "success");
+        } catch (error) {
+          showToast("Error", "Some records failed to save", "error");
+        }
+      }
+
+      // Mark all students with a status
+      function markAll(status) {
+        const rows = document.querySelectorAll("tr[data-student-id]");
+        let count = 0;
+
+        rows.forEach((row) => {
+          const studentId = row.dataset.studentId;
+          const button = row.querySelector(`.status-btn.${status}`);
+          if (button) {
+            button.click();
+            count++;
+          }
+        });
+
+        showToast(
+          "Bulk Action",
+          `Marked ${count} students as ${status}`,
+          "info"
+        );
+      }
+
+      // Update last updated time
+      function updateLastUpdatedTime() {
+        const element = document.getElementById("last-updated");
+        if (element) {
+          const now = new Date();
+          element.textContent = now.toLocaleTimeString();
+        }
+      }
+
+      // Go to specific date
+      function goToDate(period) {
+        const dateInput = document.querySelector(".date-input");
+        if (!dateInput) return;
+
+        const today = new Date();
+        let targetDate = new Date();
+
+        switch (period) {
+          case "today":
+            targetDate = today;
+            break;
+          case "yesterday":
+            targetDate = new Date(today);
+            targetDate.setDate(today.getDate() - 1);
+            break;
+          case "tomorrow":
+            targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + 1);
+            break;
+        }
+
+        // Format as YYYY-MM-DD
+        const formattedDate = targetDate.toISOString().split("T")[0];
+        dateInput.value = formattedDate;
+
+        // Submit the form
+        dateInput.closest("form").submit();
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        updateLastUpdatedTime();
+      });
+    </script>
+  </body>
+</html>

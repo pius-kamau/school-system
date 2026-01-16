@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= student ? 'Edit Student' : 'Add New Student' %></title>
+    <title><%= (student && student.id) ? 'Edit Student' : 'Add New Student' %></title>
     <style>
         :root {
             --primary: #ff416c;
@@ -154,6 +154,7 @@
             cursor: pointer;
             text-align: center;
             text-decoration: none;
+            display: inline-block;
         }
 
         .btn-submit {
@@ -204,10 +205,10 @@
 <body>
     <div class="form-container">
         <div class="form-header">
-            <h1><%= student ? '✏️ Edit Student' : '➕ Add New Student' %></h1>
+            <h1><%= (student && student.id) ? '✏️ Edit Student' : '➕ Add New Student' %></h1>
         </div>
         
-        <form action="<%= student ? '/students/edit/' + student.id : '/students/new' %>" 
+        <form action="<%= (student && student.id) ? '/students/edit/' + student.id : '/students/new' %>" 
               method="POST" 
               class="form-content" 
               id="studentForm" 
@@ -228,7 +229,7 @@
                 <div style="font-size: 48px; margin-bottom: 15px; color: #666;">
                     📷
                 </div>
-                <h3><%= student && student.photo ? 'Change Photo' : 'Upload Student Photo' %></h3>
+                <h3><%= (student && student.photo) ? 'Change Photo' : 'Upload Student Photo' %></h3>
                 <p>Click to select a photo (JPG, PNG, GIF - max 5MB)</p>
                 <input type="file" name="photo" id="photoInput" class="file-input" accept="image/*" onchange="previewPhoto(event)">
             </div>
@@ -242,7 +243,7 @@
                 <div class="form-group">
                     <label class="required">Full Name</label>
                     <input type="text" name="name" 
-                           value="<%= student ? student.name : '' %>" 
+                           value="<%= (student && student.name) ? student.name : '' %>" 
                            placeholder="Enter student's full name" 
                            required>
                 </div>
@@ -250,7 +251,7 @@
                 <div class="form-group">
                     <label class="required">Class/Grade</label>
                     <input type="text" name="class" 
-                           value="<%= student ? student.class : '' %>" 
+                           value="<%= (student && student.class) ? student.class : '' %>" 
                            placeholder="e.g., Grade 6, Form 2" 
                            required>
                 </div>
@@ -261,15 +262,15 @@
                     <label>Gender</label>
                     <select name="gender">
                         <option value="">Select Gender</option>
-                        <option value="Male" <%= student && student.gender === 'Male' ? 'selected' : '' %>>Male</option>
-                        <option value="Female" <%= student && student.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                        <option value="Male" <%= (student && student.gender === 'Male') ? 'selected' : '' %>>Male</option>
+                        <option value="Female" <%= (student && student.gender === 'Female') ? 'selected' : '' %>>Female</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label>Date of Birth</label>
                     <input type="date" name="dob" 
-                           value="<%= student ? student.dob : '' %>">
+                           value="<%= (student && student.dob) ? student.dob : '' %>">
                 </div>
             </div>
 
@@ -278,14 +279,14 @@
                 <div class="form-group">
                     <label>Guardian's Name</label>
                     <input type="text" name="guardian_name" 
-                           value="<%= student ? student.guardian_name : '' %>" 
+                           value="<%= (student && student.guardian_name) ? student.guardian_name : '' %>" 
                            placeholder="Enter guardian's name">
                 </div>
                 
                 <div class="form-group">
                     <label>Guardian's Phone</label>
                     <input type="tel" name="guardian_phone" 
-                           value="<%= student ? student.guardian_phone : '' %>" 
+                           value="<%= (student && student.guardian_phone) ? student.guardian_phone : '' %>" 
                            placeholder="Enter guardian's phone">
                 </div>
             </div>
@@ -295,14 +296,14 @@
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" name="email" 
-                           value="<%= student ? student.email : '' %>" 
+                           value="<%= (student && student.email) ? student.email : '' %>" 
                            placeholder="Enter email address">
                 </div>
                 
                 <div class="form-group">
                     <label>Phone Number</label>
                     <input type="tel" name="phone" 
-                           value="<%= student ? student.phone : '' %>" 
+                           value="<%= (student && student.phone) ? student.phone : '' %>" 
                            placeholder="Enter phone number">
                 </div>
             </div>
@@ -311,17 +312,17 @@
             <div class="form-group">
                 <label>Address</label>
                 <textarea name="address" rows="3" 
-                          placeholder="Enter complete address"><%= student ? student.address : '' %></textarea>
+                          placeholder="Enter complete address"><%= (student && student.address) ? student.address : '' %></textarea>
             </div>
 
             <!-- Status -->
             <div class="form-group">
                 <label>Status</label>
                 <select name="status">
-                    <option value="Active" <%= student && student.status === 'Active' ? 'selected' : '' %>>Active</option>
-                    <option value="Inactive" <%= student && student.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
-                    <option value="Graduated" <%= student && student.status === 'Graduated' ? 'selected' : '' %>>Graduated</option>
-                    <option value="Transferred" <%= student && student.status === 'Transferred' ? 'selected' : '' %>>Transferred</option>
+                    <option value="Active" <%= (student && student.status === 'Active') ? 'selected' : '' %>>Active</option>
+                    <option value="Inactive" <%= (student && student.status === 'Inactive') ? 'selected' : '' %>>Inactive</option>
+                    <option value="Graduated" <%= (student && student.status === 'Graduated') ? 'selected' : '' %>>Graduated</option>
+                    <option value="Transferred" <%= (student && student.status === 'Transferred') ? 'selected' : '' %>>Transferred</option>
                 </select>
             </div>
 
@@ -329,7 +330,7 @@
             <div class="form-actions">
                 <a href="/students" class="btn btn-cancel">Cancel</a>
                 <button type="submit" class="btn btn-submit">
-                    <%= student ? 'Update Student' : 'Save Student' %>
+                    <%= (student && student.id) ? 'Update Student' : 'Save Student' %>
                 </button>
             </div>
         </form>
