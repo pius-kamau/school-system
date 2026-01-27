@@ -8,7 +8,7 @@ const teacherRoutes = require('./routes/teachers');
 const { isAuthenticated, authorizeRoles } = require('./middleware/auth');
 const attendanceRoutes = require('./routes/attendance');
 const multer = require('multer');
-const feesRoutes = require('./routes/fees');
+const feesRoutes = require('./routes/fees-complete'); // ← KEEP THIS ONE
 const reportsRoutes = require('./routes/reports');
 
 const app = express();
@@ -35,8 +35,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Middleware Setup ---
-app.use(express.urlencoded({ extended: true }));
+// --- CRITICAL FIX: Add JSON parsing middleware ---
+app.use(express.json()); // ← THIS IS MISSING AND CAUSING THE ERROR
+app.use(express.urlencoded({ extended: true })); // This is already here for form data
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -180,6 +181,20 @@ app.get('/', (req, res) => {
     return res.redirect('/dashboard');
   }
   res.render('home');
+});
+
+// Debug route for fees
+app.get('/test-fees', isAuthenticated, (req, res) => {
+    console.log('Test fees route accessed by:', req.session.user);
+    
+    // Simple test response
+    res.send(`
+        <h1>Fees Test Route</h1>
+        <p>If you can see this, authentication works!</p>
+        <p>User: ${req.session.user.username}</p>
+        <p>Role: ${req.session.user.role}</p>
+        <p><a href="/fees">Try fees again</a></p>
+    `);
 });
 
 // --- Start Server ---

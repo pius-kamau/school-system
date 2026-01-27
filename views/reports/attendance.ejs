@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Reports</title>
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--dark);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Reports Navigation */
+        .reports-nav {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Filters Card */
+        .filters-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #eaeaea;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #ff2b5b;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.secondary {
+            background: #6c757d;
+        }
+
+        .filter-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Report Summary */
+        .report-summary {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            background: #f8f9fa;
+        }
+
+        .summary-item.present { 
+            border-left-color: var(--success);
+        }
+        .summary-item.absent { 
+            border-left-color: var(--danger);
+        }
+        .summary-item.late { 
+            border-left-color: var(--warning);
+        }
+        .summary-item.excused { 
+            border-left-color: var(--info);
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        .summary-percentage {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Report Table */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attendance-table thead {
+            background: #f8f9fa;
+        }
+
+        .attendance-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .attendance-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: middle;
+        }
+
+        .attendance-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-present {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #15572422;
+        }
+
+        .status-absent {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #721c2422;
+        }
+
+        .status-late {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #85640422;
+        }
+
+        .status-excused {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #0c546022;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        /* Table Footer */
+        .table-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #eaeaea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                border-bottom: 1px solid #eaeaea;
+                border-left: 3px solid transparent;
+            }
+            
+            .nav-tab.active {
+                border-left-color: var(--primary);
+                border-bottom-color: #eaeaea;
+            }
+            
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .attendance-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .table-footer {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .export-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+     
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">School Management System</a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/students" class="nav-link">Students</a>
+                <a href="/teachers" class="nav-link">Teachers</a>
+                <a href="/attendance/dashboard" class="nav-link">Attendance</a>
+                <a href="/fees" class="nav-link">Fees</a>
+                <a href="/reports" class="nav-link active">Reports</a>
+                <div class="user-info">
+                    <span><%= user.username %></span>
+                    <span>(<%= user.role %>)</span>
+                </div>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Attendance Reports</h1>
+            <a href="/reports" class="back-btn">Back to Reports</a>
+        </div>
+
+        <!-- Reports Navigation -->
+        <div class="reports-nav">
+            <div class="nav-tabs">
+                <a href="/reports" class="nav-tab">Overview</a>
+                <a href="/reports/attendance" class="nav-tab active">Attendance</a>
+                <a href="/reports/fees" class="nav-tab">Fees</a>
+                <a href="/reports/students" class="nav-tab">Students</a>
+                 <a href="/reports/performance" class="nav-tab active">Performance</a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form method="GET" action="/reports/attendance" class="filter-form">
+                <div class="filter-group">
+                    <label class="filter-label">Start Date</label>
+                    <input type="date" name="start_date" class="filter-input" 
+                           value="<%= filters.start_date %>">
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">End Date</label>
+                    <input type="date" name="end_date" class="filter-input" 
+                           value="<%= filters.end_date %>">
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Class</label>
+                    <select name="class" class="filter-input">
+                        <option value="all">All Classes</option>
+                        <% classes.forEach(cls => { %>
+                        <option value="<%= cls.class %>" 
+                                <%= filters.class === cls.class ? 'selected' : '' %>>
+                            <%= cls.class %>
+                        </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <div class="filter-group" style="display: flex; gap: 10px;">
+                    <button type="submit" class="filter-btn">Generate Report</button>
+                    <button type="button" onclick="window.location.href='/reports/attendance'" 
+                            class="filter-btn secondary">
+                        Clear Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <% if (data.length > 0) { %>
+        <!-- Summary Statistics -->
+        <div class="report-summary">
+            <h3 style="margin-bottom: 20px; font-size: 18px; font-weight: 600; color: var(--dark);">
+                Attendance Summary
+                <% if (filters.start_date || filters.end_date) { %>
+                <span style="font-size: 14px; font-weight: normal; color: #666;">
+                    (<%= filters.start_date %> to <%= filters.end_date %>)
+                </span>
+                <% } %>
+            </h3>
+            
+            <div class="summary-grid">
+                <% summary.forEach(item => { %>
+                <div class="summary-item <%= item.status.toLowerCase() %>">
+                    <div class="summary-number"><%= item.count %></div>
+                    <div class="summary-label"><%= item.status.toUpperCase() %></div>
+                    <div class="summary-percentage"><%= item.percentage %>% of total</div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Attendance Records</h3>
+                <div class="table-count"><%= data.length %> records</div>
+            </div>
+            
+            <div class="table-content">
+                <table class="attendance-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% data.forEach(record => { %>
+                        <tr>
+                            <td><%= record.date %></td>
+                            <td><%= record.name %></td>
+                            <td><%= record.class %></td>
+                            <td>
+                                <span class="status-badge status-<%= record.status.toLowerCase() %>">
+                                    <%= record.status.toUpperCase() %>
+                                </span>
+                            </td>
+                            <td><%= record.notes || '-' %></td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <div>
+                    Report generated: <%= new Date().toLocaleDateString('en-KE') %> at <%= new Date().toLocaleTimeString('en-KE', {hour: '2-digit', minute:'2-digit'}) %>
+                </div>
+                <div class="export-actions">
+                    <button onclick="window.print()" class="filter-btn secondary">Print Report</button>
+                    <a href="/reports/export/attendance?start_date=<%= filters.start_date %>&end_date=<%= filters.end_date %>&class=<%= filters.class %>" 
+                       class="filter-btn">
+                        Export Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">NO DATA</div>
+            <h3>No Attendance Records Found</h3>
+            <p>Try adjusting your date filters or mark attendance for the selected period.</p>
+            <a href="/attendance/dashboard" class="filter-btn" style="margin-top: 20px;">Go to Attendance</a>
+        </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Set default dates for filters
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const firstOfMonth = new Date();
+            firstOfMonth.setDate(1);
+            const firstDate = firstOfMonth.toISOString().split('T')[0];
+            
+            const startInput = document.querySelector('input[name="start_date"]');
+            const endInput = document.querySelector('input[name="end_date"]');
+            
+            if (!startInput.value) {
+                startInput.value = firstDate;
+            }
+            if (!endInput.value) {
+                endInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -194,7 +194,23 @@ router.post('/delete/:id', (req, res) => {
         });
     });
 });
-
+// GET /students/api/all - API endpoint to get all students
+router.get('/api/all', (req, res) => {
+    try {
+        db.all('SELECT id, name, class, admission_number, parent_name, parent_phone FROM students ORDER BY name', 
+            (err, students) => {
+                if (err) {
+                    console.error('Error fetching students:', err);
+                    return res.status(500).json({ error: 'Failed to fetch students' });
+                }
+                res.json(students);
+            }
+        );
+    } catch (error) {
+        console.error('Students API error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 // Student profile view
 router.get('/:id', (req, res) => {
     const { id } = req.params;

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance Reports</title>
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation - Same as other pages */
+        .navbar {
+            background: var(--dark);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Reports Navigation */
+        .reports-nav {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Filters Card */
+        .filters-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .filter-input {
+            padding: 10px 15px;
+            border: 2px solid #eaeaea;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #ff2b5b;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.secondary {
+            background: #6c757d;
+        }
+
+        .filter-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.students {
+            border-left-color: var(--info);
+        }
+
+        .stat-card.average {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.exams {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.subjects {
+            border-left-color: #6f42c1;
+        }
+
+        .stat-icon {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--dark);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Subject Performance */
+        .subject-performance {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .subject-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .subject-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .subject-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .subject-avg {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 5px;
+        }
+
+        .subject-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Performance Table */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: var(--dark);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .table-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .performance-table thead {
+            background: #f8f9fa;
+        }
+
+        .performance-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .performance-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: middle;
+        }
+
+        .performance-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Grade Badges */
+        .grade-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .grade-a { background: #d4edda; color: #155724; border: 1px solid #15572422; }
+        .grade-b { background: #cce5ff; color: #004085; border: 1px solid #00408522; }
+        .grade-c { background: #fff3cd; color: #856404; border: 1px solid #85640422; }
+        .grade-d { background: #f8d7da; color: #721c24; border: 1px solid #721c2422; }
+        .grade-e { background: #e2e3e5; color: #383d41; border: 1px solid #383d4122; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            opacity: 0.5;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto 20px;
+        }
+
+        /* Table Footer */
+        .table-footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #eaeaea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Action Links */
+        .action-link {
+            padding: 6px 12px;
+            background: #e9ecef;
+            color: #495057;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .action-link:hover {
+            background: #dee2e6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                border-bottom: 1px solid #eaeaea;
+                border-left: 3px solid transparent;
+            }
+            
+            .nav-tab.active {
+                border-left-color: var(--primary);
+                border-bottom-color: #eaeaea;
+            }
+            
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .table-footer {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .export-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">School Management System</a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/students" class="nav-link">Students</a>
+                <a href="/teachers" class="nav-link">Teachers</a>
+                <a href="/attendance/dashboard" class="nav-link">Attendance</a>
+                <a href="/fees" class="nav-link">Fees</a>
+                <a href="/reports" class="nav-link active">Reports</a>
+                <div class="user-info">
+                    <span><%= user.username %></span>
+                    <span>(<%= user.role %>)</span>
+                </div>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Student Performance Reports</h1>
+            <a href="/reports" class="back-btn">Back to Reports</a>
+        </div>
+
+        <!-- Reports Navigation -->
+        <div class="reports-nav">
+            <div class="nav-tabs">
+                <a href="/reports" class="nav-tab">Overview</a>
+                <a href="/reports/attendance" class="nav-tab">Attendance</a>
+                <a href="/reports/fees" class="nav-tab">Fees</a>
+                <a href="/reports/students" class="nav-tab">Students</a>
+                <a href="/reports/performance" class="nav-tab active">Performance</a>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <form method="GET" action="/reports/performance" class="filter-form">
+                <div class="filter-group">
+                    <label class="filter-label">Class Filter</label>
+                    <select name="class" class="filter-input">
+                        <option value="all" <%= filters.class === 'all' ? 'selected' : '' %>>All Classes</option>
+                        <% classes.forEach(cls => { %>
+                        <option value="<%= cls.class %>" 
+                                <%= filters.class === cls.class ? 'selected' : '' %>>
+                            <%= cls.class %>
+                        </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Term Filter</label>
+                    <select name="term" class="filter-input">
+                        <option value="all" <%= filters.term === 'all' ? 'selected' : '' %>>All Terms</option>
+                        <% exams.forEach(exam => { %>
+                        <option value="<%= exam.term %>" 
+                                <%= filters.term === exam.term ? 'selected' : '' %>>
+                            <%= exam.term %>
+                        </option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <div class="filter-group" style="display: flex; gap: 10px;">
+                    <button type="submit" class="filter-btn">Generate Report</button>
+                    <button type="button" onclick="window.location.href='/reports/performance'" 
+                            class="filter-btn secondary">
+                        Clear Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <% if (students.length > 0) { %>
+        <!-- Summary Statistics -->
+        <% 
+            const totalStudents = students.length;
+            const studentsWithData = students.filter(s => s.exams_taken > 0).length;
+            const overallAvg = studentsWithData > 0 ? 
+                students.reduce((sum, s) => sum + (s.avg_marks || 0), 0) / studentsWithData : 0;
+            const totalExams = students.reduce((sum, s) => sum + (s.exams_taken || 0), 0);
+            const totalSubjects = subjectPerformance.filter(s => s.total_records > 0).length;
+        %>
+        
+        <div class="summary-stats">
+            <div class="stat-card students">
+                <div class="stat-icon">STUDENTS</div>
+                <div class="stat-number"><%= totalStudents %></div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-subtext"><%= studentsWithData %> with performance data</div>
+            </div>
+            
+            <div class="stat-card average">
+                <div class="stat-icon">AVERAGE</div>
+                <div class="stat-number"><%= Math.round(overallAvg) %>%</div>
+                <div class="stat-label">Overall Average</div>
+                <div class="stat-subtext">Class performance</div>
+            </div>
+            
+            <div class="stat-card exams">
+                <div class="stat-icon">EXAMS</div>
+                <div class="stat-number"><%= totalExams %></div>
+                <div class="stat-label">Exams Recorded</div>
+                <div class="stat-subtext">Total exam records</div>
+            </div>
+            
+            <div class="stat-card subjects">
+                <div class="stat-icon">SUBJECTS</div>
+                <div class="stat-number"><%= totalSubjects %></div>
+                <div class="stat-label">Subjects Tracked</div>
+                <div class="stat-subtext">With performance data</div>
+                 <a href="/reports/performance" class="nav-tab active">Performance</a>
+            </div>
+        </div>
+
+        <% if (subjectPerformance.length > 0) { %>
+        <!-- Subject Performance -->
+        <div class="subject-performance">
+            <h3 class="subject-title">Subject-Wise Performance</h3>
+            <div class="subject-grid">
+                <% subjectPerformance.forEach(subject => { 
+                    if (subject.total_records > 0) {
+                        const gradeClass = subject.avg_marks >= 70 ? 'grade-a' : 
+                                          subject.avg_marks >= 50 ? 'grade-b' : 'grade-c';
+                %>
+                <div class="subject-item">
+                    <div class="subject-name"><%= subject.subject %> (<%= subject.code %>)</div>
+                    <div class="subject-avg"><%= Math.round(subject.avg_marks) %>%</div>
+                    <div class="subject-count"><%= subject.total_records %> records</div>
+                    <div class="grade-badge <%= gradeClass %>" style="margin-top: 8px; display: inline-block;">
+                        <%= subject.avg_marks >= 70 ? 'GOOD' : subject.avg_marks >= 50 ? 'AVERAGE' : 'NEEDS IMPROVEMENT' %>
+                    </div>
+                </div>
+                <% } %>
+                <% }); %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Performance Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Student Performance Summary</h3>
+                <div class="table-count"><%= students.length %> students</div>
+            </div>
+            
+            <div class="table-content">
+                <table class="performance-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Average Marks</th>
+                            <th>Grade</th>
+                            <th>Exams Taken</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% students.forEach(student => { 
+                            const gradeClass = student.grade === 'A' ? 'grade-a' :
+                                             student.grade === 'B' ? 'grade-b' :
+                                             student.grade === 'C' ? 'grade-c' :
+                                             student.grade === 'D' ? 'grade-d' :
+                                             student.grade === 'E' ? 'grade-e' : '';
+                        %>
+                        <tr>
+                            <td><%= student.name %></td>
+                            <td><%= student.class %></td>
+                            <td>
+                                <strong style="font-size: 16px;"><%= student.avg_marks %>%</strong>
+                            </td>
+                            <td>
+                                <% if (student.exams_taken > 0) { %>
+                                <span class="grade-badge <%= gradeClass %>">
+                                    <%= student.grade %>
+                                </span>
+                                <% } else { %>
+                                <span style="color: #999; font-style: italic;">No data</span>
+                                <% } %>
+                            </td>
+                            <td><%= student.exams_taken %></td>
+                            <td>
+                                <a href="/reports/performance/student/<%= student.id %>" 
+                                   class="action-link">
+                                    View Details
+                                </a>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <div>
+                    Report generated: <%= new Date().toLocaleDateString('en-KE') %> at <%= new Date().toLocaleTimeString('en-KE', {hour: '2-digit', minute:'2-digit'}) %>
+                </div>
+                <div class="export-actions">
+                    <button onclick="window.print()" class="filter-btn secondary">Print Report</button>
+                    <a href="/reports/export/performance?class=<%= filters.class %>&term=<%= filters.term %>" 
+                       class="filter-btn">
+                        Export Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">NO PERFORMANCE DATA</div>
+            <h3>No Performance Records Found</h3>
+            <p>Student performance data has not been recorded yet. Enter exam results to track performance.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <a href="#" class="filter-btn" onclick="alert('Add exam marks functionality coming soon!')">
+                    Enter Exam Marks
+                </a>
+                <a href="/students" class="filter-btn secondary">
+                    View Students
+                </a>
+            </div>
+        </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Format percentages
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add percentage signs to average marks
+            const avgElements = document.querySelectorAll('td strong');
+            avgElements.forEach(el => {
+                if (el.textContent.includes('%')) return;
+                el.textContent += '%';
+            });
+        });
+    </script>
+</body>
+</html>

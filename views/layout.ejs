@@ -11,6 +11,7 @@
         --sidebar-bg: rgba(30, 8, 60, 0.9);
         --header-bg: linear-gradient(90deg, #2e0854, #1a0033);
         --text-light: #f8fafc;
+        --success: #00b894;
       }
       * {
         margin: 0;
@@ -59,6 +60,21 @@
         background: linear-gradient(90deg, var(--primary), var(--secondary));
         color: #fff;
         box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+      }
+      /* Record Payment Button - Special Style */
+      .record-payment {
+        background: linear-gradient(90deg, var(--success), #00cec9) !important;
+        color: #fff !important;
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+      }
+      .record-payment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.5);
       }
       /* Main */
       .main {
@@ -118,19 +134,48 @@
         border-top: 1px solid #e2e8f0;
       }
     </style>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
   </head>
   <body>
     <div class="sidebar">
       <div class="logo">School Panel</div>
-      <a href="/dashboard" class="nav-item" data-title="Dashboard">Home</a>
-      <a href="/students" class="nav-item" data-title="Students">Students</a>
-      <a href="/teachers" class="nav-item" data-title="Teachers">Teachers</a>
-      <a href="/attendance" class="nav-item" data-title="Attendance"
-        >Attendance</a
+      <a href="/dashboard" class="nav-item" data-title="Dashboard">
+        <i class="fas fa-home me-2"></i>Home
+      </a>
+      <a href="/students" class="nav-item" data-title="Students">
+        <i class="fas fa-users me-2"></i>Students
+      </a>
+      <a href="/teachers" class="nav-item" data-title="Teachers">
+        <i class="fas fa-chalkboard-teacher me-2"></i>Teachers
+      </a>
+      <a href="/attendance" class="nav-item" data-title="Attendance">
+        <i class="fas fa-clipboard-check me-2"></i>Attendance
+      </a>
+
+      <!-- Fees Section with Record Payment Button -->
+      <a href="/fees" class="nav-item" data-title="Fee Management">
+        <i class="fas fa-money-bill-wave me-2"></i>Fees
+      </a>
+
+      <!-- RECORD PAYMENT BUTTON - FIXED URL -->
+      <a
+        href="/fees/payment-form"
+        class="nav-item record-payment"
+        data-title="Record Payment"
       >
-      <a href="/fees" class="nav-item" data-title="Fees">Fees</a>
-      <a href="/reports" class="nav-item" data-title="Reports">Reports</a>
-      <a href="/auth/logout" class="nav-item" data-title="Logout">Logout</a>
+        <i class="fas fa-plus-circle me-2"></i>Record Payment
+      </a>
+
+      <a href="/reports" class="nav-item" data-title="Reports">
+        <i class="fas fa-chart-pie me-2"></i>Reports
+      </a>
+      <a href="/auth/logout" class="nav-item" data-title="Logout">
+        <i class="fas fa-sign-out-alt me-2"></i>Logout
+      </a>
     </div>
 
     <div class="main">
@@ -139,9 +184,7 @@
         <span class="role-tag"><%= user ? user.role : 'Viewer' %></span>
       </header>
 
-      <div class="content-section" id="main-content">
-        <% include(content) %>
-      </div>
+      <div class="content-section" id="main-content"><%- body %></div>
 
       <footer>
         © <%= new Date().getFullYear() %> Offline School System — Professional
@@ -152,25 +195,156 @@
     <script>
       const navLinks = document.querySelectorAll(".nav-item");
       const pageTitle = document.getElementById("page-title");
+
+      // Debug: Log all nav links
+      console.log("Navigation links found:");
+      navLinks.forEach((link) => {
+        console.log(
+          `- ${link.textContent.trim()}: ${link.getAttribute("href")}`,
+        );
+      });
+
+      // Set active link based on current URL
+      function setActiveLink() {
+        const currentPath = window.location.pathname;
+        console.log("Current path:", currentPath);
+
+        navLinks.forEach((link) => {
+          const linkPath = link.getAttribute("href");
+          if (currentPath === linkPath) {
+            link.classList.add("active");
+            console.log("Active link:", linkPath);
+          } else {
+            link.classList.remove("active");
+          }
+        });
+      }
+
+      // Navigation handler
       navLinks.forEach((link) => {
         link.addEventListener("click", async (e) => {
           e.preventDefault();
           const url = link.getAttribute("href");
           const newTitle = link.dataset.title || "Dashboard";
-          const res = await fetch(url);
-          const html = await res.text();
-          const temp = document.createElement("div");
-          temp.innerHTML = html;
-          const newContent =
-            temp.querySelector("#main-content")?.innerHTML || html;
-          document.querySelector("#main-content").innerHTML = newContent;
-          pageTitle.textContent = newTitle;
-          document.title = `${newTitle} — Offline School System`;
-          navLinks.forEach((l) => l.classList.remove("active"));
-          link.classList.add("active");
-          history.pushState({}, "", url);
+
+          console.log("Clicked:", link.textContent.trim());
+          console.log("URL:", url);
+          console.log("Title:", newTitle);
+
+          // SPECIAL CASE: Check if URL exists
+          if (url === "/fees/payment") {
+            console.log(
+              "WARNING: /fees/payment doesn't exist. Using /fees/payment-form instead.",
+            );
+            // Update the link href to correct URL
+            link.setAttribute("href", "/fees/payment-form");
+            // Use correct URL for navigation
+            await navigateTo("/fees/payment-form", newTitle, link);
+            return;
+          }
+
+          await navigateTo(url, newTitle, link);
         });
       });
+
+      // Navigation function
+      async function navigateTo(url, title, link) {
+        try {
+          console.log("Fetching:", url);
+          const res = await fetch(url);
+
+          if (!res.ok) {
+            console.error("Fetch failed:", res.status, res.statusText);
+
+            // Handle 404 - try alternative or show error
+            if (res.status === 404) {
+              showError(`Page not found: ${url}`);
+
+              // Try full page reload as fallback
+              setTimeout(() => {
+                window.location.href = url;
+              }, 2000);
+              return;
+            }
+
+            throw new Error(`HTTP ${res.status}`);
+          }
+
+          const html = await res.text();
+          console.log("Response received, length:", html.length);
+
+          // Parse the HTML response
+          const temp = document.createElement("div");
+          temp.innerHTML = html;
+
+          // Find content - check different possible selectors
+          let newContent = "";
+          if (temp.querySelector("#main-content")) {
+            newContent = temp.querySelector("#main-content").innerHTML;
+          } else if (temp.querySelector(".content-section")) {
+            newContent = temp.querySelector(".content-section").innerHTML;
+          } else {
+            newContent = html; // Use entire response
+          }
+
+          // Update page content
+          document.querySelector("#main-content").innerHTML = newContent;
+          pageTitle.textContent = title;
+          document.title = `${title} — Offline School System`;
+
+          // Update active state
+          navLinks.forEach((l) => l.classList.remove("active"));
+          link.classList.add("active");
+
+          // Update browser history
+          history.pushState({ title: title }, "", url);
+
+          console.log("Navigation successful!");
+        } catch (error) {
+          console.error("Navigation error:", error);
+          showError(`Failed to load: ${error.message}`);
+
+          // Fallback: full page load
+          window.location.href = url;
+        }
+      }
+
+      // Error display function
+      function showError(message) {
+        document.querySelector("#main-content").innerHTML = `
+          <div class="alert alert-danger">
+            <h4>Navigation Error</h4>
+            <p>${message}</p>
+            <p>Attempting to reload page...</p>
+          </div>
+        `;
+      }
+
+      // Set active link on page load
+      document.addEventListener("DOMContentLoaded", setActiveLink);
+
+      // Handle browser back/forward buttons
+      window.addEventListener("popstate", function (e) {
+        console.log("Popstate triggered, loading:", window.location.pathname);
+        // Reload current page via fetch
+        fetch(window.location.pathname)
+          .then((res) => res.text())
+          .then((html) => {
+            const temp = document.createElement("div");
+            temp.innerHTML = html;
+            const content =
+              temp.querySelector("#main-content")?.innerHTML || html;
+            document.querySelector("#main-content").innerHTML = content;
+            setActiveLink();
+          })
+          .catch((err) => {
+            console.error("Popstate error:", err);
+            window.location.reload();
+          });
+      });
+
+      // Initialize active state
+      setActiveLink();
     </script>
   </body>
 </html>

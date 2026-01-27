@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports Dashboard</title>
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Navigation - Same as other pages */
+        .navbar {
+            background: var(--dark);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Reports Navigation */
+        .reports-nav {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .nav-tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Report Cards */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 2px solid transparent;
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .report-icon {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .report-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .report-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .report-features {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .report-features li {
+            padding: 6px 0;
+            color: #666;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .report-features li:before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Stats Overview */
+        .stats-overview {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .stats-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .actions-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .action-btn:hover {
+            background: #ff2b5b;
+            transform: translateY(-2px);
+        }
+
+        .action-btn.secondary {
+            background: #6c757d;
+        }
+
+        .action-btn.secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Back Button */
+        .back-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid #eaeaea;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .nav-tab {
+                border-bottom: 1px solid #eaeaea;
+                border-left: 3px solid transparent;
+            }
+            
+            .nav-tab.active {
+                border-left-color: var(--primary);
+                border-bottom-color: #eaeaea;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">School Management System</a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/students" class="nav-link">Students</a>
+                <a href="/teachers" class="nav-link">Teachers</a>
+                <a href="/attendance/dashboard" class="nav-link">Attendance</a>
+                <a href="/fees" class="nav-link">Fees</a>
+                <a href="/reports" class="nav-link active">Reports</a>
+                <div class="user-info">
+                    <span><%= user.username %></span>
+                    <span>(<%= user.role %>)</span>
+                </div>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Reports Dashboard</h1>
+        </div>
+
+        <!-- Reports Navigation -->
+        <div class="reports-nav">
+            <div class="nav-tabs">
+                <a href="/reports" class="nav-tab <%= activeTab === 'overview' ? 'active' : '' %>">Overview</a>
+                <a href="/reports/attendance" class="nav-tab <%= activeTab === 'attendance' ? 'active' : '' %>">Attendance</a>
+                <a href="/reports/fees" class="nav-tab <%= activeTab === 'fees' ? 'active' : '' %>">Fees</a>
+                <a href="/reports/students" class="nav-tab <%= activeTab === 'students' ? 'active' : '' %>">Students</a>
+                 <a href="/reports/performance" class="nav-tab active">Performance</a>
+            </div>
+        </div>
+
+        <!-- Overview Content -->
+        <% if (activeTab === 'overview') { %>
+        <div class="reports-grid">
+            <a href="/reports/attendance" class="report-card">
+                <div class="report-icon">ATTENDANCE REPORTS</div>
+                <h3 class="report-title">Attendance Analysis</h3>
+                <p class="report-desc">
+                    Generate detailed attendance reports by date range, class, or individual student. Track attendance patterns and identify trends.
+                </p>
+                <ul class="report-features">
+                    <li>Daily, weekly, monthly attendance reports</li>
+                    <li>Class-wise attendance summary</li>
+                    <li>Student attendance history tracking</li>
+                    <li>Attendance percentage calculations</li>
+                </ul>
+            </a>
+
+            <a href="/reports/fees" class="report-card">
+                <div class="report-icon">FEE REPORTS</div>
+                <h3 class="report-title">Fee Collection Analysis</h3>
+                <p class="report-desc">
+                    Comprehensive fee collection reports with payment status, outstanding balances, and collection trends analysis.
+                </p>
+                <ul class="report-features">
+                    <li>Payment status reports by student</li>
+                    <li>Outstanding balances summary</li>
+                    <li>Monthly collection trends</li>
+                    <li>Payment method analysis</li>
+                </ul>
+            </a>
+
+            <a href="/reports/students" class="report-card">
+                <div class="report-icon">STUDENT REPORTS</div>
+                <h3 class="report-title">Student Performance</h3>
+                <p class="report-desc">
+                    Track student performance, attendance rates, and fee payment status in comprehensive student analysis reports.
+                </p>
+                <ul class="report-features">
+                    <li>Complete student profiles</li>
+                    <li>Attendance rate calculations</li>
+                    <li>Fee payment status tracking</li>
+                    <li>Class-wise student distribution</li>
+                </ul>
+            </a>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+            <h3 class="stats-title">System Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number"><%= stats.totalStudents || 0 %></div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><%= stats.totalTeachers || 0 %></div>
+                    <div class="stat-label">Total Teachers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">KSH <%= (stats.totalFees || 0).toLocaleString('en-KE') %></div>
+                    <div class="stat-label">Total Fees Collected</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="actions-title">Quick Reports</h3>
+            <div class="actions-grid">
+                <% const today = new Date().toISOString().split('T')[0]; %>
+                <a href="/reports/attendance?start_date=<%= today %>&end_date=<%= today %>" 
+                   class="action-btn">
+                    Today's Attendance
+                </a>
+                <a href="/reports/fees?status=pending" class="action-btn">
+                    Pending Fees Report
+                </a>
+                <a href="/reports/students" class="action-btn">
+                    All Students Report
+                </a>
+                <a href="/reports/fees" class="action-btn secondary">
+                    Current Month Fees
+                </a>
+            </div>
+        </div>
+        <% } else { %>
+        <!-- Other report types will be loaded in their respective templates -->
+        <div style="text-align: center; padding: 60px 20px; color: #666;">
+            <h3 style="margin-bottom: 15px; font-size: 20px; font-weight: 600;">Select Report Type</h3>
+            <p style="font-size: 14px;">Choose a report type from the navigation above to view detailed reports</p>
+            <a href="/reports" class="back-btn" style="margin-top: 20px;">Back to Overview</a>
+        </div>
+        <% } %>
+    </div>
+
+    <script>
+        // Initialize date pickers
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                if (!input.value) {
+                    input.value = today;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

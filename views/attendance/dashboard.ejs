@@ -107,9 +107,6 @@
         font-size: 28px;
         font-weight: 600;
         color: var(--dark);
-        display: flex;
-        align-items: center;
-        gap: 10px;
       }
 
       .header-actions {
@@ -129,9 +126,10 @@
       .stat-card {
         background: white;
         border-radius: 10px;
-        padding: 20px;
+        padding: 25px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s;
+        border-left: 5px solid var(--primary);
       }
 
       .stat-card:hover {
@@ -139,33 +137,47 @@
       }
 
       .stat-card.present {
-        border-left: 5px solid var(--success);
+        border-left-color: var(--success);
       }
+
       .stat-card.absent {
-        border-left: 5px solid var(--danger);
+        border-left-color: var(--danger);
       }
+
       .stat-card.late {
-        border-left: 5px solid var(--warning);
+        border-left-color: var(--warning);
       }
+
       .stat-card.excused {
-        border-left: 5px solid var(--info);
+        border-left-color: var(--info);
       }
 
       .stat-icon {
         font-size: 24px;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        color: var(--dark);
+        font-weight: bold;
       }
 
       .stat-number {
-        font-size: 32px;
+        font-size: 36px;
         font-weight: 700;
         margin: 10px 0;
+        color: var(--dark);
       }
 
       .stat-label {
         color: #666;
         font-size: 14px;
         font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .stat-percentage {
+        color: #888;
+        font-size: 13px;
+        margin-top: 5px;
       }
 
       /* Controls */
@@ -190,11 +202,20 @@
         color: var(--dark);
       }
 
+      .auto-save-info {
+        color: #666;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
       .date-selector {
         display: flex;
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
       }
 
       .date-label {
@@ -208,6 +229,7 @@
         border-radius: 8px;
         font-size: 14px;
         transition: border-color 0.3s;
+        min-width: 180px;
       }
 
       .date-input:focus {
@@ -215,7 +237,7 @@
         border-color: var(--primary);
       }
 
-      .quick-date-btn {
+      .date-btn {
         padding: 10px 20px;
         background: #f8f9fa;
         border: 2px solid #eaeaea;
@@ -224,9 +246,10 @@
         cursor: pointer;
         font-weight: 500;
         transition: all 0.3s;
+        font-size: 14px;
       }
 
-      .quick-date-btn:hover {
+      .date-btn:hover {
         background: var(--primary);
         color: white;
         border-color: var(--primary);
@@ -248,24 +271,29 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        font-size: 14px;
       }
 
       .bulk-btn.present {
         background: #d4edda;
         color: #155724;
       }
+
       .bulk-btn.absent {
         background: #f8d7da;
         color: #721c24;
       }
+
       .bulk-btn.late {
         background: #fff3cd;
         color: #856404;
       }
+
       .bulk-btn.excused {
         background: #d1ecf1;
         color: #0c5460;
       }
+
       .bulk-btn.save {
         background: var(--primary);
         color: white;
@@ -282,6 +310,7 @@
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
       }
 
       .table-header {
@@ -358,14 +387,15 @@
         color: #666;
       }
 
-      /* Status Buttons */
+      /* Status Buttons - Professional */
       .status-buttons {
         display: flex;
-        gap: 5px;
+        gap: 8px;
+        flex-wrap: wrap;
       }
 
       .status-btn {
-        padding: 8px 15px;
+        padding: 8px 16px;
         border: 2px solid #eaeaea;
         border-radius: 6px;
         background: white;
@@ -373,27 +403,31 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        font-size: 13px;
+        min-width: 80px;
+        text-align: center;
       }
 
       .status-btn:hover {
         transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       .status-btn.present {
         border-color: var(--success);
         color: var(--success);
       }
+
       .status-btn.absent {
         border-color: var(--danger);
         color: var(--danger);
       }
+
       .status-btn.late {
         border-color: var(--warning);
         color: var(--warning);
       }
+
       .status-btn.excused {
         border-color: var(--info);
         color: var(--info);
@@ -401,16 +435,21 @@
 
       .status-btn.active {
         color: white;
+        font-weight: 600;
       }
+
       .status-btn.present.active {
         background: var(--success);
       }
+
       .status-btn.absent.active {
         background: var(--danger);
       }
+
       .status-btn.late.active {
         background: var(--warning);
       }
+
       .status-btn.excused.active {
         background: var(--info);
       }
@@ -432,7 +471,7 @@
 
       /* Action Buttons */
       .action-btn {
-        padding: 8px 15px;
+        padding: 8px 16px;
         border: none;
         border-radius: 6px;
         font-weight: 500;
@@ -442,14 +481,12 @@
         gap: 5px;
         text-decoration: none;
         transition: all 0.3s;
-      }
-
-      .action-btn.history {
+        font-size: 13px;
         background: #e9ecef;
         color: #495057;
       }
 
-      .action-btn.history:hover {
+      .action-btn:hover {
         background: #dee2e6;
       }
 
@@ -463,12 +500,6 @@
         align-items: center;
         color: #666;
         font-size: 14px;
-      }
-
-      .auto-save-info {
-        display: flex;
-        align-items: center;
-        gap: 5px;
       }
 
       /* Toast Notification */
@@ -487,6 +518,7 @@
         opacity: 0;
         transition: all 0.3s;
         z-index: 1000;
+        min-width: 300px;
       }
 
       .toast.show {
@@ -497,23 +529,28 @@
       .toast.success {
         border-left: 4px solid var(--success);
       }
+
       .toast.error {
         border-left: 4px solid var(--danger);
       }
+
       .toast.info {
         border-left: 4px solid var(--info);
       }
 
       .toast-icon {
         font-size: 20px;
+        font-weight: bold;
       }
 
       .toast.success .toast-icon {
         color: var(--success);
       }
+
       .toast.error .toast-icon {
         color: var(--danger);
       }
+
       .toast.info .toast-icon {
         color: var(--info);
       }
@@ -540,6 +577,7 @@
         font-size: 48px;
         margin-bottom: 20px;
         opacity: 0.5;
+        color: #999;
       }
 
       .empty-state h3 {
@@ -556,21 +594,6 @@
 
       /* Responsive */
       @media (max-width: 768px) {
-        .nav-links {
-          flex-direction: column;
-          position: absolute;
-          top: 100%;
-          left: 0;
-          right: 0;
-          background: var(--dark);
-          padding: 20px;
-          display: none;
-        }
-
-        .nav-links.active {
-          display: flex;
-        }
-
         .stats-grid {
           grid-template-columns: 1fr;
         }
@@ -583,6 +606,19 @@
         .status-buttons {
           flex-direction: column;
         }
+
+        .status-btn {
+          min-width: 60px;
+        }
+
+        .bulk-actions {
+          flex-direction: column;
+        }
+
+        .date-selector {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
     </style>
   </head>
@@ -590,12 +626,13 @@
     <!-- Navigation -->
     <nav class="navbar">
       <div class="nav-container">
-        <a href="/" class="nav-brand"> 🏫 School System </a>
+        <a href="/" class="nav-brand">School Management System</a>
         <div class="nav-links">
           <a href="/dashboard" class="nav-link">Dashboard</a>
           <a href="/students" class="nav-link">Students</a>
           <a href="/teachers" class="nav-link">Teachers</a>
           <a href="/attendance/dashboard" class="nav-link active">Attendance</a>
+          <a href="/fees" class="nav-link">Fees</a>
           <div class="user-info">
             <span><%= user.username %></span>
             <span>(<%= user.role %>)</span>
@@ -609,19 +646,19 @@
     <div class="container">
       <!-- Header -->
       <div class="page-header">
-        <h1 class="page-title">📅 Attendance Dashboard</h1>
+        <h1 class="page-title">Attendance Management</h1>
         <div class="header-actions">
-          <a href="/attendance/reports" class="action-btn history">
-            📊 Reports
-          </a>
-          <button class="bulk-btn save" onclick="saveAll()">💾 Save All</button>
+          <a href="/attendance/reports" class="action-btn">View Reports</a>
+          <button class="bulk-btn save" onclick="saveAll()">
+            Save All Changes
+          </button>
         </div>
       </div>
 
-      <!-- Statistics Cards -->
+      <!-- Statistics -->
       <div class="stats-grid">
         <div class="stat-card present">
-          <div class="stat-icon">✅</div>
+          <div class="stat-icon">PRESENT</div>
           <div class="stat-number"><%= stats.present %></div>
           <div class="stat-label">Present Today</div>
           <div class="stat-percentage">
@@ -629,17 +666,17 @@
           </div>
         </div>
         <div class="stat-card absent">
-          <div class="stat-icon">❌</div>
+          <div class="stat-icon">ABSENT</div>
           <div class="stat-number"><%= stats.absent %></div>
           <div class="stat-label">Absent Today</div>
         </div>
         <div class="stat-card late">
-          <div class="stat-icon">⏰</div>
+          <div class="stat-icon">LATE</div>
           <div class="stat-number"><%= stats.late %></div>
           <div class="stat-label">Late Today</div>
         </div>
         <div class="stat-card excused">
-          <div class="stat-icon">📝</div>
+          <div class="stat-icon">EXCUSED</div>
           <div class="stat-number"><%= stats.excused %></div>
           <div class="stat-label">Excused Today</div>
         </div>
@@ -648,41 +685,48 @@
       <!-- Controls -->
       <div class="controls-card">
         <div class="controls-header">
-          <h3 class="controls-title">Quick Controls</h3>
-          <div class="auto-save-info">🔄 Auto-save enabled</div>
+          <h3 class="controls-title">Attendance Controls</h3>
+          <div class="auto-save-info">Auto-save enabled</div>
         </div>
 
-        <!-- Date Selector -->
-        <div class="date-selector">
-          <span class="date-label">Select Date:</span>
-          <input
-            type="date"
-            class="date-input"
-            value="<%= date %>"
-            onchange="this.form.submit()"
-            name="date"
-          />
-          <button class="quick-date-btn" onclick="goToDate('today')">
-            Today
-          </button>
-          <button class="quick-date-btn" onclick="goToDate('yesterday')">
-            Yesterday
-          </button>
-        </div>
+        <!-- Date Selector Form -->
+        <form method="GET" action="/attendance/dashboard" id="dateForm">
+          <div class="date-selector">
+            <span class="date-label">Select Date:</span>
+            <input
+              type="date"
+              class="date-input"
+              value="<%= date %>"
+              onchange="document.getElementById('dateForm').submit()"
+              name="date"
+              id="dateInput"
+            />
+            <button type="button" class="date-btn" onclick="goToDate('today')">
+              Today
+            </button>
+            <button
+              type="button"
+              class="date-btn"
+              onclick="goToDate('yesterday')"
+            >
+              Yesterday
+            </button>
+          </div>
+        </form>
 
         <!-- Bulk Actions -->
         <div class="bulk-actions">
           <button class="bulk-btn present" onclick="markAll('present')">
-            ✅ Mark All Present
+            Mark All Present
           </button>
           <button class="bulk-btn absent" onclick="markAll('absent')">
-            ❌ Mark All Absent
+            Mark All Absent
           </button>
           <button class="bulk-btn late" onclick="markAll('late')">
-            ⏰ Mark All Late
+            Mark All Late
           </button>
           <button class="bulk-btn excused" onclick="markAll('excused')">
-            📝 Mark All Excused
+            Mark All Excused
           </button>
         </div>
       </div>
@@ -696,7 +740,7 @@
 
         <% if (students.length === 0) { %>
         <div class="empty-state">
-          <div class="empty-icon">👨‍🎓</div>
+          <div class="empty-icon">No Students</div>
           <h3>No Students Found</h3>
           <p>Add students first from the Students page to mark attendance.</p>
           <a href="/students" class="bulk-btn save">Go to Students</a>
@@ -733,25 +777,25 @@
                     class="status-btn present <%= student.status === 'present' ? 'active' : '' %>"
                     onclick="markAttendance(<%= student.id %>, 'present')"
                   >
-                    ✅ Present
+                    Present
                   </button>
                   <button
                     class="status-btn absent <%= student.status === 'absent' ? 'active' : '' %>"
                     onclick="markAttendance(<%= student.id %>, 'absent')"
                   >
-                    ❌ Absent
+                    Absent
                   </button>
                   <button
                     class="status-btn late <%= student.status === 'late' ? 'active' : '' %>"
                     onclick="markAttendance(<%= student.id %>, 'late')"
                   >
-                    ⏰ Late
+                    Late
                   </button>
                   <button
                     class="status-btn excused <%= student.status === 'excused' ? 'active' : '' %>"
                     onclick="markAttendance(<%= student.id %>, 'excused')"
                   >
-                    📝 Excused
+                    Excused
                   </button>
                 </div>
               </td>
@@ -768,10 +812,10 @@
               <td>
                 <a
                   href="/attendance/student/<%= student.id %>"
-                  class="action-btn history"
+                  class="action-btn"
                   title="View Attendance History"
                 >
-                  📊 History
+                  History
                 </a>
               </td>
             </tr>
@@ -793,7 +837,7 @@
 
     <!-- Toast Notification -->
     <div id="toast" class="toast">
-      <div class="toast-icon">ℹ️</div>
+      <div class="toast-icon">!</div>
       <div class="toast-content">
         <h4 id="toast-title">Notification</h4>
         <p id="toast-message">Message here</p>
@@ -838,13 +882,22 @@
         const notesInput = row.querySelector(".notes-input");
         const notes = notesInput ? notesInput.value : "";
 
-        // Store change
-        changes.set(studentId, {
+        // Get date
+        const dateInput = document.getElementById("dateInput");
+        const date = dateInput
+          ? dateInput.value
+          : new Date().toISOString().split("T")[0];
+
+        // Create data object
+        const data = {
           student_id: studentId,
           status: status,
           notes: notes,
-          date: document.querySelector(".date-input").value,
-        });
+          date: date,
+        };
+
+        // Store change
+        changes.set(studentId, data);
 
         // Update last updated time
         updateLastUpdatedTime();
@@ -891,7 +944,7 @@
 
           if (result.success) {
             changes.delete(studentId);
-            showToast("Success", "Attendance saved!", "success");
+            showToast("Success", "Attendance saved successfully", "success");
           } else {
             showToast("Error", result.error || "Failed to save", "error");
           }
@@ -907,7 +960,7 @@
       // Save all changes
       async function saveAll() {
         if (changes.size === 0) {
-          showToast("Info", "No changes to save", "info");
+          showToast("Information", "No changes to save", "info");
           return;
         }
 
@@ -955,7 +1008,7 @@
 
       // Go to specific date
       function goToDate(period) {
-        const dateInput = document.querySelector(".date-input");
+        const dateInput = document.getElementById("dateInput");
         if (!dateInput) return;
 
         const today = new Date();
@@ -980,7 +1033,7 @@
         dateInput.value = formattedDate;
 
         // Submit the form
-        dateInput.closest("form").submit();
+        document.getElementById("dateForm").submit();
       }
 
       // Initialize

@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Payment - School System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Custom CSS for Payment Form -->
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --info: #7209b7;
+        }
+        
+        .card-header.bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+        }
+        
+        .quick-amount-btn {
+            transition: all 0.2s;
+            border-radius: 20px !important;
+            margin: 2px;
+        }
+        
+        .quick-amount-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .fee-summary-card {
+            border-radius: 10px;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .fee-summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .border-danger { border-color: #dc3545 !important; }
+        .border-success { border-color: #28a745 !important; }
+        .border-warning { border-color: #ffc107 !important; }
+        .border-info { border-color: #17a2b8 !important; }
+        
+        .receipt-input {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 1.1rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .payment-method-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .payment-method-badge.cash {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .payment-method-badge.mpesa {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .payment-method-badge.bank {
+            background-color: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+        
+        .student-info-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .amount-input-group {
+            position: relative;
+        }
+        
+        .amount-input-group .input-group-text {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            border-color: var(--primary);
+        }
+        
+        #submitPayment:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Recent payments table */
+        .recent-payments-table tbody tr {
+            transition: all 0.2s;
+        }
+        
+        .recent-payments-table tbody tr:hover {
+            background-color: rgba(0,0,0,0.02);
+        }
+        
+        /* Status badges */
+        .badge-paid {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .badge-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        
+        .badge-partial {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .fee-summary-card .card-body {
+                padding: 0.75rem;
+            }
+            
+            .fee-summary-card h4 {
+                font-size: 1.25rem;
+            }
+            
+            .quick-amount-btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-3">
+        <div class="row">
+            <div class="col-12">
+                <!-- Header Card -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-gradient-primary text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-money-bill-wave me-2"></i>Record Fee Payment
+                            </h5>
+                            <small class="opacity-75">Complete the form below to record a new payment</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                                <i class="fas fa-receipt me-1"></i>Receipt: #<%= nextReceiptNumber %>
+                            </span>
+                            <div class="text-white mt-1">
+                                <small><%= new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Left Column - Payment Form -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <!-- Student Selection -->
+                                <div class="mb-4">
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-user-graduate me-2"></i>Step 1: Select Student
+                                    </h6>
+                                    
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-8">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-search"></i>
+                                                </span>
+                                                <select class="form-select" id="studentSelect" required>
+                                                    <option value="">-- Select a student --</option>
+                                                    <!-- Students will be loaded via AJAX -->
+                                                </select>
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">Select student from the list</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100 h-100" id="refreshStudents" type="button">
+                                                <i class="fas fa-sync-alt me-1"></i>Refresh List
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Selected Student Info -->
+                                    <div class="card student-info-card mb-3 d-none" id="studentInfoCard">
+                                        <div class="card-body py-3">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="mb-1 text-primary" id="studentName"></h6>
+                                                    <p class="text-muted mb-1" id="studentDetails"></p>
+                                                    <small class="text-muted" id="studentContact"></small>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" id="changeStudent">
+                                                    <i class="fas fa-times me-1"></i>Change
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Fee Summary (Hidden until student selected) -->
+                                <div class="row g-3 mb-4 d-none" id="feeSummary">
+                                    <div class="col-12">
+                                        <h6 class="text-primary mb-3">
+                                            <i class="fas fa-calculator me-2"></i>Fee Summary
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="card fee-summary-card border-danger h-100">
+                                            <div class="card-body text-center p-3">
+                                                <i class="fas fa-file-invoice-dollar fa-2x text-danger mb-2"></i>
+                                                <h6 class="text-muted mb-2">Total Fee</h6>
+                                                <h4 id="totalFee" class="text-danger fw-bold mb-0">KSH 0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="card fee-summary-card border-success h-100">
+                                            <div class="card-body text-center p-3">
+                                                <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                                <h6 class="text-muted mb-2">Already Paid</h6>
+                                                <h4 id="paidAmount" class="text-success fw-bold mb-0">KSH 0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="card fee-summary-card border-warning h-100">
+                                            <div class="card-body text-center p-3">
+                                                <i class="fas fa-balance-scale fa-2x text-warning mb-2"></i>
+                                                <h6 class="text-muted mb-2">Balance</h6>
+                                                <h4 id="balanceAmount" class="text-warning fw-bold mb-0">KSH 0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <div class="card fee-summary-card border-info h-100">
+                                            <div class="card-body text-center p-3">
+                                                <i class="fas fa-money-check-alt fa-2x text-info mb-2"></i>
+                                                <h6 class="text-muted mb-2">This Payment</h6>
+                                                <h4 id="paymentAmount" class="text-info fw-bold mb-0">KSH 0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Form -->
+                                <form id="paymentForm" class="needs-validation" novalidate>
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-credit-card me-2"></i>Step 2: Payment Details
+                                    </h6>
+                                    
+                                    <div class="row g-3">
+                                        <!-- Receipt Number -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-receipt me-1"></i>Receipt Number
+                                            </label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-light">#</span>
+                                                <input type="text" 
+                                                       class="form-control receipt-input" 
+                                                       name="receiptNumber" 
+                                                       id="receiptNumber" 
+                                                       value="<%= nextReceiptNumber %>"
+                                                       required
+                                                       readonly>
+                                                <button type="button" class="btn btn-outline-primary" id="generateReceipt">
+                                                    <i class="fas fa-redo me-1"></i> New
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">Auto-generated receipt number</small>
+                                        </div>
+
+                                        <!-- Payment Date -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-calendar-alt me-1"></i>Payment Date
+                                            </label>
+                                            <input type="date" 
+                                                   class="form-control" 
+                                                   name="paymentDate" 
+                                                   id="paymentDate"
+                                                   value="<%= new Date().toISOString().split('T')[0] %>"
+                                                   required>
+                                        </div>
+
+                                        <!-- Payment Amount -->
+                                        <div class="col-md-8">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-money-bill-wave me-1"></i>Payment Amount (KSH)
+                                            </label>
+                                            <div class="input-group amount-input-group">
+                                                <span class="input-group-text">KSH</span>
+                                                <input type="number" 
+                                                       class="form-control" 
+                                                       name="amount" 
+                                                       id="amount"
+                                                       min="100"
+                                                       step="100"
+                                                       required
+                                                       placeholder="Enter amount"
+                                                       disabled>
+                                            </div>
+                                            <div class="mt-2">
+                                                <small class="text-muted d-block mb-1">Quick amounts:</small>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <% [500, 1000, 2000, 5000, 10000, 20000, 50000].forEach(amt => { %>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-primary quick-amount-btn" 
+                                                                data-amount="<%= amt %>">
+                                                            <%= amt.toLocaleString() %>
+                                                        </button>
+                                                    <% }) %>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Payment Method -->
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-credit-card me-1"></i>Payment Method
+                                            </label>
+                                            <select class="form-select" name="paymentMethod" id="paymentMethod" required>
+                                                <option value="Cash">Cash</option>
+                                                <option value="MPesa">MPesa</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                                <option value="Cheque">Cheque</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Payment Method Details (Conditional) -->
+                                        <div class="col-12">
+                                            <div id="mpesaDetails" class="conditional-details" style="display: none;">
+                                                <div class="card border-primary">
+                                                    <div class="card-body">
+                                                        <h6 class="text-primary">
+                                                            <i class="fas fa-mobile-alt me-2"></i>MPesa Details
+                                                        </h6>
+                                                        <div class="row g-3 mt-2">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">MPesa Transaction Code</label>
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       name="mpesaCode" 
+                                                                       id="mpesaCode"
+                                                                       placeholder="e.g., RFT67G8901">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Phone Number</label>
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       name="phoneNumber" 
+                                                                       id="phoneNumber"
+                                                                       placeholder="07XX XXX XXX">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="bankDetails" class="conditional-details" style="display: none;">
+                                                <div class="card border-primary">
+                                                    <div class="card-body">
+                                                        <h6 class="text-primary">
+                                                            <i class="fas fa-university me-2"></i>Bank Transfer Details
+                                                        </h6>
+                                                        <div class="row g-3 mt-2">
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Bank Name</label>
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       name="bankName" 
+                                                                       id="bankName"
+                                                                       placeholder="e.g., Equity Bank">
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <label class="form-label">Reference Number</label>
+                                                                <input type="text" 
+                                                                       class="form-control" 
+                                                                       name="bankReference" 
+                                                                       id="bankReference"
+                                                                       placeholder="Transaction reference">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Notes -->
+                                        <div class="col-12">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-sticky-note me-1"></i>Payment Notes (Optional)
+                                            </label>
+                                            <textarea class="form-control" 
+                                                      name="notes" 
+                                                      id="notes" 
+                                                      rows="2"
+                                                      placeholder="Add any notes about this payment..."></textarea>
+                                        </div>
+
+                                        <!-- Hidden Fields -->
+                                        <input type="hidden" name="studentId" id="studentId">
+                                        <input type="hidden" name="totalDue" id="hiddenTotalDue">
+                                        <input type="hidden" name="balance" id="hiddenBalance">
+
+                                        <!-- Action Buttons -->
+                                        <div class="col-12 mt-4 pt-3 border-top">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <button type="button" class="btn btn-outline-secondary px-4" id="cancelPayment">
+                                                    <i class="fas fa-times me-1"></i>Cancel
+                                                </button>
+                                                <button type="submit" class="btn btn-success px-4" id="submitPayment" disabled>
+                                                    <i class="fas fa-check-circle me-2"></i>Record Payment
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column - Recent Payments -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-history me-2"></i>Today's Payments
+                                </h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="recentPaymentsContainer" class="p-3">
+                                    <div class="text-center py-5">
+                                        <div class="spinner mx-auto mb-3"></div>
+                                        <p class="text-muted mb-0">Loading recent payments...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-light">
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Today's Total</small>
+                                        <span class="fw-bold text-success" id="todayTotal">KSH 0</span>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Payments Count</small>
+                                        <span class="fw-bold text-primary" id="paymentsCount">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats Card -->
+                        <div class="card shadow-sm mt-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-line me-2"></i>Quick Stats
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted">Monthly Collection</span>
+                                    <span class="fw-bold text-primary" id="monthlyTotal">KSH 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted">Pending Students</span>
+                                    <span class="fw-bold text-warning" id="pendingCount">0</span>
+                                </div>
+                                <div class="progress mb-2" style="height: 8px;">
+                                    <div class="progress-bar bg-success" id="collectionProgress" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted">Collection progress this month</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Payment Form JavaScript -->
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Payment form loaded');
+    
+    // Elements
+    const studentSelect = document.getElementById('studentSelect');
+    const amountInput = document.getElementById('amount');
+    const receiptNumberInput = document.getElementById('receiptNumber');
+    const submitBtn = document.getElementById('submitPayment');
+    const paymentForm = document.getElementById('paymentForm');
+    const recentPaymentsContainer = document.getElementById('recentPaymentsContainer');
+    
+    // Load initial data
+    loadStudents();
+    loadRecentPayments();
+    
+    // Load students function
+    async function loadStudents() {
+        try {
+            console.log('Loading students...');
+            const response = await fetch('/fees/students/all');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const students = await response.json();
+            console.log(`Loaded ${students.length} students`);
+            
+            // Clear and populate dropdown
+            studentSelect.innerHTML = '<option value="">-- Select a student --</option>';
+            
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `${student.name} - ${student.class} (${student.admission_number})`;
+                option.dataset.fee = student.fee_amount || 15000;
+                studentSelect.appendChild(option);
+            });
+            
+        } catch (error) {
+            console.error('Error loading students:', error);
+            studentSelect.innerHTML = `
+                <option value="">Error loading students</option>
+                <option value="1" data-fee="15000">Test Student 1 - Form 1 (STU001)</option>
+                <option value="2" data-fee="18000">Test Student 2 - Form 2 (STU002)</option>
+            `;
+        }
+    }
+    
+    // Load recent payments
+    async function loadRecentPayments() {
+        try {
+            const response = await fetch('/fees/recent-payments');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const data = await response.json();
+            
+            if (data.payments && data.payments.length > 0) {
+                const html = `
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Receipt</th>
+                                    <th>Student</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.payments.map(payment => `
+                                    <tr>
+                                        <td>#${payment.receipt_number || 'N/A'}</td>
+                                        <td>${payment.student_name || 'Unknown'}</td>
+                                        <td class="text-success fw-bold">KSH ${(payment.amount || 0).toLocaleString()}</td>
+                                        <td>
+                                            <small class="text-muted">
+                                                ${payment.created_at ? 
+                                                    new Date(payment.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                                                    : 'N/A'}
+                                            </small>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        <div class="text-end">
+                            <small class="text-muted">Total today: <strong>KSH ${(data.total || 0).toLocaleString()}</strong></small>
+                        </div>
+                    </div>
+                `;
+                recentPaymentsContainer.innerHTML = html;
+            } else {
+                recentPaymentsContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No payments recorded today</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error loading recent payments:', error);
+            recentPaymentsContainer.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Could not load recent payments</p>
+                    <small class="text-muted">Database might be empty</small>
+                </div>
+            `;
+        }
+    }
+    
+    // Student selection handler
+    studentSelect.addEventListener('change', function() {
+        const studentId = this.value;
+        
+        if (!studentId) {
+            // No student selected
+            amountInput.disabled = true;
+            amountInput.value = '';
+            submitBtn.disabled = true;
+            hideFeeSummary();
+            return;
+        }
+        
+        // Student selected - enable amount field
+        amountInput.disabled = false;
+        amountInput.focus();
+        submitBtn.disabled = false;
+        
+        // Get selected option data
+        const selectedOption = this.options[this.selectedIndex];
+        const feeAmount = parseFloat(selectedOption.dataset.fee) || 15000;
+        
+        // Show fee summary
+        showFeeSummary(feeAmount);
+        
+        console.log(`Student selected: ${selectedOption.textContent}, Fee: ${feeAmount}`);
+    });
+    
+    // Show fee summary
+    function showFeeSummary(totalFee) {
+        // Update UI with fee information
+        document.getElementById('totalFee').textContent = `KSH ${totalFee.toLocaleString()}`;
+        document.getElementById('paymentAmount').textContent = `KSH 0`;
+        
+        // Show the fee summary section
+        document.getElementById('feeSummary').classList.remove('d-none');
+        document.getElementById('studentInfoCard').classList.remove('d-none');
+        
+        // Update student info
+        const selectedOption = studentSelect.options[studentSelect.selectedIndex];
+        document.getElementById('studentName').textContent = selectedOption.textContent;
+        
+        // Set hidden fields
+        document.getElementById('studentId').value = studentSelect.value;
+        document.getElementById('hiddenTotalDue').value = totalFee;
+        document.getElementById('hiddenBalance').value = totalFee;
+    }
+    
+    // Hide fee summary
+    function hideFeeSummary() {
+        document.getElementById('feeSummary').classList.add('d-none');
+        document.getElementById('studentInfoCard').classList.add('d-none');
+    }
+    
+    // Change student button
+    document.getElementById('changeStudent').addEventListener('click', function() {
+        studentSelect.value = '';
+        studentSelect.dispatchEvent(new Event('change'));
+        studentSelect.focus();
+    });
+    
+    // Refresh students button
+    document.getElementById('refreshStudents').addEventListener('click', function() {
+        loadStudents();
+    });
+    
+    // Quick amount buttons
+    document.querySelectorAll('.btn-quick-amount').forEach(button => {
+        button.addEventListener('click', function() {
+            const amount = parseInt(this.dataset.amount);
+            amountInput.value = amount;
+            updatePaymentAmountDisplay(amount);
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        });
+    });
+    
+    // Amount input handler
+    amountInput.addEventListener('input', function() {
+        const amount = parseFloat(this.value) || 0;
+        updatePaymentAmountDisplay(amount);
+        
+        // Enable/disable submit button based on amount
+        submitBtn.disabled = amount <= 0;
+    });
+    
+    // Update payment amount display
+    function updatePaymentAmountDisplay(amount) {
+        document.getElementById('paymentAmount').textContent = `KSH ${amount.toLocaleString()}`;
+        
+        // Validate amount doesn't exceed total fee
+        const totalFee = parseFloat(document.getElementById('hiddenTotalDue').value) || 0;
+        if (amount > totalFee) {
+            amountInput.classList.add('is-invalid');
+            submitBtn.disabled = true;
+        } else {
+            amountInput.classList.remove('is-invalid');
+        }
+    }
+    
+    // Generate new receipt
+    document.getElementById('generateReceipt').addEventListener('click', function() {
+        const current = parseInt(receiptNumberInput.value) || 0;
+        receiptNumberInput.value = (current + 1).toString().padStart(4, '0');
+    });
+    
+    // Payment method change - show/hide details
+    document.getElementById('paymentMethod').addEventListener('change', function() {
+        const method = this.value;
+        
+        // Hide all detail sections
+        document.querySelectorAll('.conditional-details').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Show selected method's details
+        if (method === 'MPesa') {
+            document.getElementById('mpesaDetails').style.display = 'block';
+        } else if (method === 'Bank Transfer') {
+            document.getElementById('bankDetails').style.display = 'block';
+        }
+    });
+    
+    // Form submission - SIMPLE FIXED VERSION
+    paymentForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validate student selected
+        if (!studentSelect.value) {
+            alert('Please select a student first');
+            studentSelect.focus();
+            return;
+        }
+        
+        // Validate amount
+        const amount = parseFloat(amountInput.value);
+        if (!amount || amount <= 0) {
+            alert('Please enter a valid amount');
+            amountInput.focus();
+            return;
+        }
+        
+        // Show confirmation
+        const studentName = studentSelect.options[studentSelect.selectedIndex].textContent.split(' - ')[0];
+        const confirmMessage = `Confirm payment of KSH ${amount.toLocaleString()} for ${studentName}?`;
+        
+        if (!confirm(confirmMessage)) {
+            return;
+        }
+        
+        // Disable form and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+        
+        try {
+            // Create FormData object (this works with express.urlencoded)
+            const formData = new FormData();
+            formData.append('studentId', document.getElementById('studentId').value);
+            formData.append('receiptNumber', document.getElementById('receiptNumber').value);
+            formData.append('amount', amount);
+            formData.append('paymentDate', document.getElementById('paymentDate').value);
+            formData.append('paymentMethod', document.getElementById('paymentMethod').value);
+            formData.append('notes', document.getElementById('notes').value || '');
+            
+            // Add optional fields if they exist
+            const mpesaCode = document.getElementById('mpesaCode');
+            const phoneNumber = document.getElementById('phoneNumber');
+            const bankName = document.getElementById('bankName');
+            const bankReference = document.getElementById('bankReference');
+            
+            if (mpesaCode && mpesaCode.value) formData.append('mpesaCode', mpesaCode.value);
+            if (phoneNumber && phoneNumber.value) formData.append('phoneNumber', phoneNumber.value);
+            if (bankName && bankName.value) formData.append('bankName', bankName.value);
+            if (bankReference && bankReference.value) formData.append('bankReference', bankReference.value);
+            
+            console.log('Submitting payment data...');
+            
+            // Send to server - using FormData instead of JSON
+            const response = await fetch('/fees/payments', {
+                method: 'POST',
+                body: formData  // Send as FormData (not JSON)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Success!
+                alert(`✅ Payment recorded successfully!\nReceipt: #${result.receiptNumber}\nAmount: KSH ${result.amount.toLocaleString()}`);
+                
+                // Reset form
+                paymentForm.reset();
+                studentSelect.value = '';
+                amountInput.disabled = true;
+                submitBtn.disabled = true;
+                hideFeeSummary();
+                
+                // Update receipt number
+                if (result.receiptNumber) {
+                    const nextNum = parseInt(result.receiptNumber) + 1;
+                    receiptNumberInput.value = nextNum.toString().padStart(4, '0');
+                } else {
+                    const current = parseInt(receiptNumberInput.value) || 0;
+                    receiptNumberInput.value = (current + 1).toString().padStart(4, '0');
+                }
+                
+                // Reset date to today
+                document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+                
+                // Reload recent payments
+                loadRecentPayments();
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Record Payment';
+                
+            } else {
+                // Error from server
+                alert(`❌ Error: ${result.message || 'Payment failed'}`);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Record Payment';
+            }
+            
+        } catch (error) {
+            console.error('Payment submission error:', error);
+            alert('❌ Network error. Please check your connection and try again.');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Record Payment';
+        }
+    });
+    
+    // Cancel button
+    document.getElementById('cancelPayment').addEventListener('click', function() {
+        if (confirm('Cancel this payment? All entered data will be lost.')) {
+            paymentForm.reset();
+            studentSelect.value = '';
+            amountInput.disabled = true;
+            submitBtn.disabled = true;
+            hideFeeSummary();
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+        }
+    });
+});
+<!-- Add this right before </body> in your payment-form.ejs -->
+
+console.log('Payment form loaded');
+
+// Debug: Check if form exists
+const form = document.querySelector('form[action="/fees/payments"]') || document.querySelector('form');
+console.log('Form found:', !!form);
+
+if (form) {
+    // Override form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log('Form submitted!');
+        
+        // Collect all form data
+        const formData = {
+            studentId: document.getElementById('studentId')?.value || 
+                       document.querySelector('[name="studentId"]')?.value ||
+                       document.querySelector('[name="student_id"]')?.value,
+            receiptNumber: document.getElementById('receiptNumber')?.value || 
+                          document.querySelector('[name="receiptNumber"]')?.value ||
+                          document.querySelector('[name="receipt_number"]')?.value,
+            amount: document.getElementById('amount')?.value || 
+                    document.querySelector('[name="amount"]')?.value,
+            paymentDate: document.getElementById('paymentDate')?.value || 
+                        document.querySelector('[name="paymentDate"]')?.value ||
+                        document.querySelector('[name="payment_date"]')?.value,
+            paymentMethod: document.getElementById('paymentMethod')?.value || 
+                          document.querySelector('[name="paymentMethod"]')?.value ||
+                          document.querySelector('[name="payment_method"]')?.value,
+            notes: document.getElementById('notes')?.value || 
+                   document.querySelector('[name="notes"]')?.value,
+            mpesaCode: document.getElementById('mpesaCode')?.value || 
+                      document.querySelector('[name="mpesaCode"]')?.value ||
+                      document.querySelector('[name="mpesa_code"]')?.value,
+            phoneNumber: document.getElementById('phoneNumber')?.value || 
+                        document.querySelector('[name="phoneNumber"]')?.value ||
+                        document.querySelector('[name="phone_number"]')?.value,
+            bankName: document.getElementById('bankName')?.value || 
+                     document.querySelector('[name="bankName"]')?.value ||
+                     document.querySelector('[name="bank_name"]')?.value,
+            bankReference: document.getElementById('bankReference')?.value || 
+                          document.querySelector('[name="bankReference"]')?.value ||
+                          document.querySelector('[name="bank_reference"]')?.value
+        };
+        
+        console.log('Collected form data:', formData);
+        
+        try {
+            console.log('Sending POST request to /fees/payments...');
+            
+            const response = await fetch('/fees/payments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            const result = await response.json();
+            console.log('Response data:', result);
+            
+            if (result.success) {
+                alert('✅ Payment saved successfully!');
+                window.location.reload();
+            } else {
+                alert('❌ Error: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            alert('❌ Network error: ' + error.message);
+        }
+    });
+    
+    // Also log all form fields
+    console.log('Form fields:');
+    form.querySelectorAll('input, select, textarea').forEach(field => {
+        console.log(`- ${field.name || field.id}: ${field.value}`);
+    });
+}
+
+// Test the endpoint directly
+async function testEndpointDirectly() {
+    console.log('\n🔧 Testing endpoint directly...');
+    
+    const testData = {
+        studentId: "1",
+        receiptNumber: "TEST" + Date.now(),
+        amount: "5000",
+        paymentDate: new Date().toISOString().split('T')[0],
+        paymentMethod: "Cash",
+        notes: "Test payment"
+    };
+    
+    console.log('Test data:', testData);
+    
+    try {
+        const response = await fetch('/fees/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(testData)
+        });
+        
+        const result = await response.json();
+        console.log('Direct test result:', result);
+        
+        if (result.success) {
+            console.log('✅ Direct test PASSED!');
+        } else {
+            console.log('❌ Direct test failed:', result.message);
+        }
+    } catch (error) {
+        console.error('Direct test error:', error);
+    }
+}
+
+// Run test after 2 seconds
+setTimeout(testEndpointDirectly, 2000);
+</script>
+
+</body>
+</html>

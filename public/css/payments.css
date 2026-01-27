@@ -1,0 +1,84 @@
+/* Payment Form Styling */
+.payment-method-btn {
+    flex: 1;
+}
+
+.quick-amount-btn:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.student-search-result:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.fee-summary-card {
+    border-width: 2px;
+    transition: transform 0.2s;
+}
+
+.fee-summary-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Payment method details animation */
+.payment-details-section {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Receipt number styling */
+.receipt-number {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* Amount input focus */
+.amount-input:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+/* Today's payments list */
+.today-payment-item {
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.today-payment-item.cash {
+    border-left-color: #198754;
+}
+
+.today-payment-item.mpesa {
+    border-left-color: #0dcaf0;
+}
+
+.today-payment-item.bank {
+    border-left-color: #6f42c1;
+}
+
+.today-payment-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Statistics cards */
+.stat-card {
+    transition: all 0.3s;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
