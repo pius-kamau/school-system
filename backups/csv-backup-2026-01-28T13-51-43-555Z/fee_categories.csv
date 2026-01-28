@@ -1,0 +1,11 @@
+id,name,description,default_amount,is_active,created_at
+1,"Tuition Fee","Main academic tuition fee",15000,1,"2026-01-27 14:59:29"
+2,"Library Fee","Library access and book rental",2000,1,"2026-01-27 14:59:29"
+3,"Sports Fee","Sports facilities and equipment",1500,1,"2026-01-27 14:59:29"
+4,"Laboratory Fee","Science lab equipment and materials",3000,1,"2026-01-27 14:59:29"
+5,"Examination Fee","Term and final examination fees",1000,1,"2026-01-27 14:59:29"
+6,"Transport Fee","School bus transportation",5000,1,"2026-01-27 14:59:29"
+7,"Hostel Fee","Boarding and accommodation",10000,1,"2026-01-27 14:59:29"
+8,"Activity Fee","Co-curricular activities",1500,1,"2026-01-27 14:59:29"
+9,"Development Fee","School development fund",2000,1,"2026-01-27 14:59:29"
+10,"Uniform Fee","School uniform cost",3000,1,"2026-01-27 14:59:29"

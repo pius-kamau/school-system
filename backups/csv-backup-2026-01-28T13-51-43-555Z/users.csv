@@ -1,0 +1,2 @@
+id,username,password_hash,role,full_name,last_login,email
+1,"admin","$2b$10$CRKXg.4DBGckaWBSkBeuMOntRQrp16qA2tfMYVBvmtkE9opNprJMq","Admin","System Administrator",,

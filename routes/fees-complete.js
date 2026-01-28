@@ -2490,30 +2490,624 @@ router.post('/reports/generate', async (req, res) => {
 // GET /fees/reports/export - Export report in various formats
 router.get('/reports/export', async (req, res) => {
     try {
-        const { export_format, report_type, ...filters } = req.query;
+        console.log('\n' + '='.repeat(60));
+        console.log('📤 EXPORT REQUEST RECEIVED');
+        console.log('Export format:', req.query.export_format);
+        console.log('Report type:', req.query.report_type);
+        console.log('='.repeat(60));
         
-        // Generate report data first
-        const reportResponse = await generateReportData(report_type, filters);
+        const { 
+            export_format = 'csv', 
+            report_type = 'daily_collection',
+            date_range = 'all',
+            start_date,
+            end_date,
+            academic_year = 'all',
+            term = 'all',
+            fee_category = 'all',
+            payment_status = 'all',
+            payment_method = 'all',
+            student_class = 'all',
+            sort_by = 'date_desc'
+        } = req.query;
         
-        if (!reportResponse.success) {
-            return res.status(400).send('Failed to generate report data');
+        // Validate export format
+        const validFormats = ['csv', 'excel', 'pdf'];
+        if (!validFormats.includes(export_format.toLowerCase())) {
+            console.error('❌ Invalid export format:', export_format);
+            return res.status(400).json({
+                success: false,
+                message: `Invalid export format. Must be one of: ${validFormats.join(', ')}`
+            });
         }
         
-        // Export based on format
-        switch (export_format) {
+        console.log(`✅ Starting ${export_format.toUpperCase()} export for ${report_type}...`);
+        
+        // First, let's get REAL data from database for CSV
+        // We'll build the query based on filters
+        let whereClause = 'WHERE 1=1';
+        const params = [];
+        
+        // Date range filter
+        if (date_range && date_range !== 'all') {
+            const now = new Date();
+            let startDate, endDate;
+            
+            switch (date_range) {
+                case 'today':
+                    startDate = endDate = now.toISOString().split('T')[0];
+                    break;
+                case 'yesterday':
+                    const yesterday = new Date(now);
+                    yesterday.setDate(now.getDate() - 1);
+                    startDate = endDate = yesterday.toISOString().split('T')[0];
+                    break;
+                case 'this_week':
+                    const weekStart = new Date(now);
+                    weekStart.setDate(now.getDate() - now.getDay());
+                    startDate = weekStart.toISOString().split('T')[0];
+                    endDate = now.toISOString().split('T')[0];
+                    break;
+                case 'last_week':
+                    const lastWeekStart = new Date(now);
+                    lastWeekStart.setDate(now.getDate() - now.getDay() - 7);
+                    const lastWeekEnd = new Date(lastWeekStart);
+                    lastWeekEnd.setDate(lastWeekStart.getDate() + 6);
+                    startDate = lastWeekStart.toISOString().split('T')[0];
+                    endDate = lastWeekEnd.toISOString().split('T')[0];
+                    break;
+                case 'this_month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                    endDate = now.toISOString().split('T')[0];
+                    break;
+                case 'last_month':
+                    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    startDate = lastMonth.toISOString().split('T')[0];
+                    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+                    endDate = lastMonthEnd.toISOString().split('T')[0];
+                    break;
+                case 'this_year':
+                    startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+                    endDate = now.toISOString().split('T')[0];
+                    break;
+                case 'last_year':
+                    const lastYear = now.getFullYear() - 1;
+                    startDate = new Date(lastYear, 0, 1).toISOString().split('T')[0];
+                    endDate = new Date(lastYear, 11, 31).toISOString().split('T')[0];
+                    break;
+                case 'custom':
+                    startDate = start_date;
+                    endDate = end_date;
+                    break;
+            }
+            
+            if (startDate && endDate) {
+                whereClause += ' AND f.payment_date BETWEEN ? AND ?';
+                params.push(startDate, endDate);
+                console.log('Date filter:', startDate, 'to', endDate);
+            }
+        }
+        
+        // Other filters
+        if (academic_year && academic_year !== 'all') {
+            whereClause += ' AND f.academic_year = ?';
+            params.push(academic_year);
+        }
+        
+        if (term && term !== 'all') {
+            whereClause += ' AND f.term = ?';
+            params.push(term);
+        }
+        
+        if (fee_category && fee_category !== 'all') {
+            whereClause += ' AND f.category_id = ?';
+            params.push(fee_category);
+        }
+        
+        if (payment_status && payment_status !== 'all') {
+            whereClause += ' AND f.status = ?';
+            params.push(payment_status);
+        }
+        
+        if (payment_method && payment_method !== 'all') {
+            whereClause += ' AND f.payment_method = ?';
+            params.push(payment_method);
+        }
+        
+        if (student_class && student_class !== 'all') {
+            whereClause += ' AND s.class = ?';
+            params.push(student_class);
+        }
+        
+        // Build ORDER BY clause
+        let orderByClause = 'ORDER BY ';
+        switch (sort_by) {
+            case 'date_asc':
+                orderByClause += 'f.payment_date ASC';
+                break;
+            case 'amount_desc':
+                orderByClause += 'f.amount_paid DESC';
+                break;
+            case 'amount_asc':
+                orderByClause += 'f.amount_paid ASC';
+                break;
+            case 'student_asc':
+                orderByClause += 's.name ASC';
+                break;
+            case 'student_desc':
+                orderByClause += 's.name DESC';
+                break;
+            default: // date_desc
+                orderByClause += 'f.payment_date DESC';
+        }
+        
+        console.log('WHERE clause:', whereClause);
+        console.log('Query params:', params);
+        
+        switch (export_format.toLowerCase()) {
             case 'csv':
-                return exportToCSV(res, reportResponse.data, report_type);
-            case 'pdf':
-                return exportToPDF(res, reportResponse, report_type);
+                // REAL CSV Export with actual data
+                console.log('📊 Fetching real data for CSV export...');
+                
+                const query = `
+                    SELECT 
+                        f.receipt_number as "Receipt Number",
+                        DATE(f.payment_date) as "Payment Date",
+                        s.name as "Student Name",
+                        s.admission_number as "Admission Number",
+                        s.class as "Class",
+                        COALESCE(fc.name, 'General') as "Fee Category",
+                        f.amount_paid as "Amount Paid",
+                        f.amount_due as "Amount Due",
+                        f.balance as "Balance",
+                        f.status as "Status",
+                        COALESCE(f.payment_method, 'Not Specified') as "Payment Method",
+                        f.term as "Term",
+                        f.academic_year as "Academic Year",
+                        COALESCE(f.mpesa_code, 'N/A') as "MPesa Code",
+                        COALESCE(f.phone_number, 'N/A') as "Phone Number",
+                        COALESCE(f.bank_name, 'N/A') as "Bank Name",
+                        COALESCE(f.bank_reference, 'N/A') as "Bank Reference",
+                        DATE(f.created_at) as "Recorded At"
+                    FROM fees f
+                    LEFT JOIN students s ON f.student_id = s.id
+                    LEFT JOIN fee_categories fc ON f.category_id = fc.id
+                    ${whereClause}
+                    ${orderByClause}
+                `;
+                
+                console.log('Executing query:', query);
+                const data = await dbAll(query, params);
+                console.log(`✅ Found ${data.length} records for CSV export`);
+                
+                if (data.length === 0) {
+                    console.log('⚠️ No data found, returning empty CSV with headers');
+                    // Return CSV with just headers
+                    const headers = [
+                        'Receipt Number',
+                        'Payment Date', 
+                        'Student Name',
+                        'Admission Number',
+                        'Class',
+                        'Fee Category',
+                        'Amount Paid',
+                        'Amount Due',
+                        'Balance',
+                        'Status',
+                        'Payment Method',
+                        'Term',
+                        'Academic Year',
+                        'MPesa Code',
+                        'Phone Number',
+                        'Bank Name',
+                        'Bank Reference',
+                        'Recorded At'
+                    ];
+                    
+                    const csvContent = headers.join(',');
+                    res.setHeader('Content-Type', 'text/csv');
+                    res.setHeader('Content-Disposition', `attachment; filename="fee-report-${report_type}-empty-${Date.now()}.csv"`);
+                    return res.send(csvContent);
+                }
+                
+                // Create CSV content
+                const headers = Object.keys(data[0]);
+                const rows = data.map(row => {
+                    return headers.map(header => {
+                        let value = row[header];
+                        if (value === null || value === undefined) {
+                            value = '';
+                        }
+                        // Escape commas and quotes for CSV
+                        const stringValue = String(value);
+                        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                            return `"${stringValue.replace(/"/g, '""')}"`;
+                        }
+                        return stringValue;
+                    }).join(',');
+                });
+                
+                const csvContent = [headers.join(','), ...rows].join('\n');
+                
+                const timestamp = new Date().toISOString().split('T')[0];
+                res.setHeader('Content-Type', 'text/csv');
+                res.setHeader('Content-Disposition', `attachment; filename="fee-report-${report_type}-${timestamp}.csv"`);
+                
+                console.log(`✅ CSV export completed. ${data.length} records exported.`);
+                return res.send(csvContent);
+                
             case 'excel':
-                return exportToExcel(res, reportResponse.data, report_type);
-            default:
-                return res.status(400).send('Unsupported export format');
+                // Keep as test for now - we'll implement real Excel in next step
+                console.log('⚠️ Excel export - still using test version');
+                res.setHeader('Content-Type', 'text/plain');
+                res.setHeader('Content-Disposition', `attachment; filename="test-${report_type}-${Date.now()}.txt"`);
+                return res.send(`Excel export for ${report_type}\nFilters: ${JSON.stringify(req.query)}\nReal Excel export coming in next step.`);
+                
+            case 'pdf':
+                console.log('📄 Fetching data for PDF export...');
+                
+                // Get real data for PDF
+                const pdfQuery = `
+                    SELECT 
+                        f.receipt_number,
+                        DATE(f.payment_date) as payment_date,
+                        s.name as student_name,
+                        s.admission_number,
+                        s.class,
+                        COALESCE(fc.name, 'General') as fee_category,
+                        f.amount_paid,
+                        f.amount_due,
+                        f.balance,
+                        f.status,
+                        COALESCE(f.payment_method, 'Not Specified') as payment_method,
+                        f.term,
+                        f.academic_year
+                    FROM fees f
+                    LEFT JOIN students s ON f.student_id = s.id
+                    LEFT JOIN fee_categories fc ON f.category_id = fc.id
+                    ${whereClause}
+                    ${orderByClause}
+                    LIMIT 100
+                `;
+                
+                console.log('Executing PDF query:', pdfQuery);
+                const pdfData = await dbAll(pdfQuery, params);
+                console.log(`Found ${pdfData?.length || 0} records for PDF`);
+                
+                // Get summary stats
+                const summaryQuery = `
+                    SELECT 
+                        COUNT(*) as total_records,
+                        COALESCE(SUM(f.amount_paid), 0) as total_collected,
+                        COALESCE(SUM(f.amount_due), 0) as total_due,
+                        COALESCE(SUM(f.balance), 0) as total_balance
+                    FROM fees f
+                    LEFT JOIN students s ON f.student_id = s.id
+                    ${whereClause}
+                `;
+                
+                const summary = await dbGet(summaryQuery, params);
+                
+                // Create HTML for PDF
+                const html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>Fee Report - ${report_type}</title>
+                        <style>
+                            body {
+                                font-family: 'Helvetica', 'Arial', sans-serif;
+                                margin: 0;
+                                padding: 20px;
+                                color: #333;
+                            }
+                            
+                            .header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                                border-bottom: 3px solid #4361ee;
+                                padding-bottom: 20px;
+                            }
+                            
+                            .header h1 {
+                                color: #4361ee;
+                                margin: 0 0 10px 0;
+                                font-size: 24px;
+                            }
+                            
+                            .header .subtitle {
+                                color: #666;
+                                font-size: 14px;
+                            }
+                            
+                            .summary-cards {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                gap: 15px;
+                                margin-bottom: 30px;
+                            }
+                            
+                            .summary-card {
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 15px;
+                                border-left: 4px solid #4361ee;
+                            }
+                            
+                            .summary-card.total {
+                                border-left-color: #4cc9f0;
+                            }
+                            
+                            .summary-card.paid {
+                                border-left-color: #4895ef;
+                            }
+                            
+                            .summary-card.balance {
+                                border-left-color: #f8961e;
+                            }
+                            
+                            .summary-value {
+                                font-size: 20px;
+                                font-weight: bold;
+                                margin: 5px 0;
+                            }
+                            
+                            .summary-label {
+                                color: #666;
+                                font-size: 12px;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                            }
+                            
+                            .filters {
+                                background: #f1f3f9;
+                                padding: 15px;
+                                border-radius: 6px;
+                                margin-bottom: 20px;
+                                font-size: 13px;
+                            }
+                            
+                            .filters h3 {
+                                margin: 0 0 10px 0;
+                                color: #4361ee;
+                                font-size: 14px;
+                            }
+                            
+                            .filters-grid {
+                                display: grid;
+                                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                gap: 10px;
+                            }
+                            
+                            .filter-item {
+                                margin-bottom: 5px;
+                            }
+                            
+                            .filter-label {
+                                font-weight: bold;
+                                color: #555;
+                            }
+                            
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 20px;
+                                font-size: 12px;
+                            }
+                            
+                            th {
+                                background: #4361ee;
+                                color: white;
+                                padding: 10px;
+                                text-align: left;
+                                font-weight: bold;
+                            }
+                            
+                            td {
+                                padding: 8px 10px;
+                                border-bottom: 1px solid #eaeaea;
+                            }
+                            
+                            tr:nth-child(even) {
+                                background: #f9f9f9;
+                            }
+                            
+                            .status-paid {
+                                color: #28a745;
+                                font-weight: bold;
+                            }
+                            
+                            .status-partial {
+                                color: #ffc107;
+                                font-weight: bold;
+                            }
+                            
+                            .status-pending {
+                                color: #dc3545;
+                                font-weight: bold;
+                            }
+                            
+                            .amount {
+                                text-align: right;
+                                font-family: 'Courier New', monospace;
+                            }
+                            
+                            .footer {
+                                margin-top: 40px;
+                                padding-top: 20px;
+                                border-top: 1px solid #eaeaea;
+                                font-size: 11px;
+                                color: #666;
+                                text-align: center;
+                            }
+                            
+                            .no-data {
+                                text-align: center;
+                                padding: 40px;
+                                color: #666;
+                                font-style: italic;
+                            }
+                            
+                            .page-break {
+                                page-break-before: always;
+                            }
+                            
+                            @media print {
+                                body {
+                                    padding: 10px;
+                                }
+                                
+                                .summary-cards {
+                                    grid-template-columns: repeat(4, 1fr);
+                                }
+                                
+                                table {
+                                    font-size: 10px;
+                                }
+                                
+                                th, td {
+                                    padding: 6px 8px;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>Fee Collection Report</h1>
+                            <div class="subtitle">${report_type.replace(/_/g, ' ').toUpperCase()}</div>
+                            <div class="subtitle">Generated: ${new Date().toLocaleString('en-KE')}</div>
+                        </div>
+                        
+                        <div class="summary-cards">
+                            <div class="summary-card total">
+                                <div class="summary-value">KSh ${parseInt(summary?.total_collected || 0).toLocaleString('en-KE')}</div>
+                                <div class="summary-label">Total Collected</div>
+                            </div>
+                            <div class="summary-card paid">
+                                <div class="summary-value">KSh ${parseInt(summary?.total_due || 0).toLocaleString('en-KE')}</div>
+                                <div class="summary-label">Total Due</div>
+                            </div>
+                            <div class="summary-card balance">
+                                <div class="summary-value">KSh ${parseInt(summary?.total_balance || 0).toLocaleString('en-KE')}</div>
+                                <div class="summary-label">Total Balance</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-value">${summary?.total_records || 0}</div>
+                                <div class="summary-label">Total Records</div>
+                            </div>
+                        </div>
+                        
+                        <div class="filters">
+                            <h3>Report Filters</h3>
+                            <div class="filters-grid">
+                                <div class="filter-item">
+                                    <span class="filter-label">Date Range:</span> ${date_range === 'all' ? 'All Time' : date_range}
+                                </div>
+                                ${date_range === 'custom' && start_date && end_date ? `
+                                    <div class="filter-item">
+                                        <span class="filter-label">Custom Dates:</span> ${start_date} to ${end_date}
+                                    </div>
+                                ` : ''}
+                                <div class="filter-item">
+                                    <span class="filter-label">Academic Year:</span> ${academic_year === 'all' ? 'All Years' : academic_year}
+                                </div>
+                                <div class="filter-item">
+                                    <span class="filter-label">Term:</span> ${term === 'all' ? 'All Terms' : term}
+                                </div>
+                                <div class="filter-item">
+                                    <span class="filter-label">Payment Status:</span> ${payment_status === 'all' ? 'All Statuses' : payment_status}
+                                </div>
+                                <div class="filter-item">
+                                    <span class="filter-label">Payment Method:</span> ${payment_method === 'all' ? 'All Methods' : payment_method}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        ${pdfData && pdfData.length > 0 ? `
+                            <h3>Fee Records (${pdfData.length} shown)</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Receipt #</th>
+                                        <th>Date</th>
+                                        <th>Student Name</th>
+                                        <th>Class</th>
+                                        <th>Category</th>
+                                        <th>Amount Paid</th>
+                                        <th>Amount Due</th>
+                                        <th>Balance</th>
+                                        <th>Status</th>
+                                        <th>Method</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pdfData.map((row, index) => `
+                                        <tr>
+                                            <td>${row.receipt_number || 'N/A'}</td>
+                                            <td>${row.payment_date || ''}</td>
+                                            <td>${row.student_name || 'Unknown'}</td>
+                                            <td>${row.class || 'N/A'}</td>
+                                            <td>${row.fee_category || 'General'}</td>
+                                            <td class="amount">KSh ${parseInt(row.amount_paid || 0).toLocaleString('en-KE')}</td>
+                                            <td class="amount">KSh ${parseInt(row.amount_due || 0).toLocaleString('en-KE')}</td>
+                                            <td class="amount">KSh ${parseInt(row.balance || 0).toLocaleString('en-KE')}</td>
+                                            <td class="status-${row.status?.toLowerCase() || 'pending'}">
+                                                ${row.status || 'Pending'}
+                                            </td>
+                                            <td>${row.payment_method || 'Not Specified'}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                            
+                            ${summary?.total_records > 100 ? `
+                                <div style="margin-top: 10px; font-style: italic; color: #666; font-size: 11px;">
+                                    Note: Showing first 100 of ${summary.total_records} records. Use CSV export for complete data.
+                                </div>
+                            ` : ''}
+                        ` : `
+                            <div class="no-data">
+                                <h3>No Data Found</h3>
+                                <p>No fee records match the selected filters.</p>
+                            </div>
+                        `}
+                        
+                        <div class="footer">
+                            <p>School Management System • Fee Reports Module</p>
+                            <p>This is a computer generated report. No signature required.</p>
+                            <p>Page generated on ${new Date().toLocaleString('en-KE')}</p>
+                        </div>
+                        
+                        <script>
+                            // Auto-print when opened (optional)
+                            window.onload = function() {
+                                // Uncomment to auto-print
+                                // window.print();
+                            };
+                        </script>
+                    </body>
+                    </html>
+                `;
+                
+                res.setHeader('Content-Type', 'text/html');
+                res.setHeader('Content-Disposition', `attachment; filename="fee-report-${report_type}-${Date.now()}.html"`);
+                
+                console.log('✅ PDF HTML created successfully');
+                return res.send(html);
         }
-        
     } catch (error) {
-        console.error('Export error:', error);
-        res.status(500).send('Export failed: ' + error.message);
+        console.error('❌ CRITICAL ERROR in export route:', error);
+        console.error('Error stack:', error.stack);
+        
+        // Try to send error response if headers not sent
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: 'Export failed: ' + error.message,
+                error: error.stack
+            });
+        }
     }
 });
 
@@ -3255,55 +3849,84 @@ async function generatePaymentMethodReport(whereClause, params) {
 }
 // ==================== EXPORT FUNCTIONS ====================
 
-// GET /fees/reports/export - Export report in various formats
-router.get('/reports/export', async (req, res) => {
+// GET /fees/reports/export-csv-test - Test CSV export with REAL data
+router.get('/reports/export-csv-test', async (req, res) => {
     try {
         console.log('\n' + '='.repeat(60));
-        console.log('📤 EXPORT REQUEST');
-        console.log('Query params:', req.query);
-        console.log('Requested by:', req.session.user?.username);
+        console.log('🧪 TEST CSV EXPORT - REAL DATA ONLY');
         console.log('='.repeat(60));
         
-        const { 
-            export_format, 
-            report_type,
-            date_range,
-            start_date,
-            end_date,
-            academic_year,
-            term,
-            fee_category,
-            payment_status,
-            payment_method,
-            student_class,
-            sort_by
-        } = req.query;
+        // Simple query to get REAL data
+        const query = `
+            SELECT 
+                f.id,
+                f.receipt_number,
+                DATE(f.payment_date) as payment_date,
+                s.name as student_name,
+                s.admission_number,
+                s.class,
+                f.amount_paid,
+                f.amount_due,
+                f.balance,
+                f.status,
+                f.payment_method,
+                f.term,
+                f.academic_year
+            FROM fees f
+            LEFT JOIN students s ON f.student_id = s.id
+            ORDER BY f.payment_date DESC
+            LIMIT 50
+        `;
         
-        // Generate report data first
-        const reportData = await generateExportData(req.query);
+        console.log('Executing query for REAL data...');
+        const realData = await dbAll(query, []);
         
-        if (!reportData.success) {
-            return res.status(400).send(reportData.message || 'Failed to generate report data');
+        console.log(`✅ Found ${realData?.length || 0} REAL records in database`);
+        
+        if (!realData || realData.length === 0) {
+            console.log('❌ NO REAL DATA FOUND in fees table');
+            
+            // Let's check what tables exist
+            const tables = await dbAll("SELECT name FROM sqlite_master WHERE type='table'", []);
+            console.log('Tables in database:', tables);
+            
+            // Create a simple CSV with message
+            const csvContent = "Message\nNo real data found in fees table. Database might be empty.";
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename="no-data-found.csv"');
+            return res.send(csvContent);
         }
         
-        // Export based on format
-        switch (export_format) {
-            case 'csv':
-                return await exportToCSV(res, reportData, report_type);
-            case 'excel':
-                return await exportToExcel(res, reportData, report_type);
-            case 'pdf':
-                return await exportToPDF(res, reportData, report_type);
-            default:
-                return res.status(400).send('Unsupported export format');
-        }
+        // Create CSV from REAL data
+        const headers = Object.keys(realData[0]);
+        const rows = realData.map(row => {
+            return headers.map(header => {
+                let value = row[header];
+                if (value === null || value === undefined) value = '';
+                return `"${String(value).replace(/"/g, '""')}"`;
+            }).join(',');
+        });
+        
+        const csvContent = [headers.join(','), ...rows].join('\n');
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="real-fees-data-${Date.now()}.csv"`);
+        
+        console.log('✅ CSV created with', realData.length, 'REAL records');
+        console.log('First record:', realData[0]);
+        
+        return res.send(csvContent);
         
     } catch (error) {
-        console.error('❌ Export error:', error);
-        res.status(500).send('Export failed: ' + error.message);
+        console.error('❌ Error in CSV test:', error);
+        console.error('Error stack:', error.stack);
+        
+        const errorCsv = `Error,Message\n1,"${error.message}"`;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="export-error.csv"');
+        return res.send(errorCsv);
     }
 });
-
 // Helper function to generate data for export
 async function generateExportData(filters) {
     try {
@@ -3740,4 +4363,5 @@ router.get('/reports/quick-export', async (req, res) => {
         res.status(500).send('Quick export failed: ' + error.message);
     }
 });
+
 module.exports = router;

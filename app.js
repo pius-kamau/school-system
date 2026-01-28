@@ -10,6 +10,7 @@ const attendanceRoutes = require('./routes/attendance');
 const multer = require('multer');
 const feesRoutes = require('./routes/fees-complete'); // ← KEEP THIS ONE
 const reportsRoutes = require('./routes/reports');
+const examRoutes = require('./routes/exam-routes');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use((req, res, next) => {
 
 // --- CRITICAL FIX: Add JSON parsing middleware ---
 app.use(express.json()); // ← THIS IS MISSING AND CAUSING THE ERROR
+app.use('/exams', examRoutes);
 app.use(express.urlencoded({ extended: true })); // This is already here for form data
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
