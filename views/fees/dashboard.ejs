@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fees Management Dashboard</title>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
       :root {
         --primary: #ff416c;
@@ -68,6 +71,9 @@
         border-radius: 6px;
         transition: all 0.3s;
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
       }
 
       .nav-link:hover,
@@ -537,6 +543,7 @@
         color: #666;
       }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   </head>
   <body>
     <!-- Navigation -->
@@ -549,6 +556,10 @@
           <a href="/teachers" class="nav-link">Teachers</a>
           <a href="/attendance/dashboard" class="nav-link">Attendance</a>
           <a href="/fees" class="nav-link active">Fees</a>
+          <!-- ADDED BACKUP LINK HERE -->
+          <a href="/fees/backup" class="nav-link">
+            <i class="fas fa-database"></i> Backup
+          </a>
           <div class="user-info">
             <span><%= user.username %></span>
             <span>(<%= user.role %>)</span>
@@ -615,13 +626,11 @@
           <div class="action-title">View Reports</div>
           <div class="action-desc">Financial reports & analytics</div>
         </a>
-        <a
-          href="/fees/export?start_date=<%= today %>&end_date=<%= today %>"
-          class="action-card"
-        >
-          <div class="action-icon">EXPORT</div>
-          <div class="action-title">Export Data</div>
-          <div class="action-desc">Export to CSV/Excel</div>
+        <!-- ADDED BACKUP ACTION CARD HERE -->
+        <a href="/fees/backup" class="action-card">
+          <div class="action-icon">BACKUP</div>
+          <div class="action-title">Backup & Restore</div>
+          <div class="action-desc">Manage database backups</div>
         </a>
         <a href="/students" class="action-card" onclick="showAllStudents()">
           <div class="action-icon">STUDENTS</div>

@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Collections - Fee Management</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .reset-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .reset-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      }
+
+      .warning-icon {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .warning-icon i {
+        font-size: 4rem;
+        color: #ff416c;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .stats-box {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border-left: 4px solid #4361ee;
+      }
+
+      .stats-box h3 {
+        color: #4361ee;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+      }
+
+      .stat-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #ddd;
+      }
+
+      .stat-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .stat-label {
+        color: #666;
+        font-weight: 500;
+      }
+
+      .stat-value {
+        color: #333;
+        font-weight: 600;
+        font-family: "Courier New", monospace;
+      }
+
+      .danger-zone {
+        background: #fff5f5;
+        border: 2px solid #feb2b2;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+
+      .danger-zone h3 {
+        color: #c53030;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .confirm-box {
+        background: #f0fff4;
+        border: 2px solid #9ae6b4;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+      }
+
+      .confirm-box h3 {
+        color: #2f855a;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        transition: border-color 0.3s;
+      }
+
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #4361ee;
+      }
+
+      .reset-type {
+        margin-bottom: 20px;
+      }
+
+      .reset-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .reset-option:hover {
+        background: #f7fafc;
+        border-color: #cbd5e0;
+      }
+
+      .reset-option input[type="radio"] {
+        margin: 0;
+      }
+
+      .reset-option label {
+        cursor: pointer;
+        font-weight: 500;
+        color: #4a5568;
+      }
+
+      .reset-description {
+        font-size: 0.9rem;
+        color: #718096;
+        margin-left: 26px;
+        margin-top: -5px;
+        margin-bottom: 10px;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .btn-danger {
+        background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: linear-gradient(135deg, #ff4b2b, #ff416c);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+      }
+
+      .btn-danger:disabled {
+        background: #cbd5e0;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+        margin-top: 15px;
+      }
+
+      .btn-secondary:hover {
+        background: #cbd5e0;
+      }
+
+      .back-link {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .back-link a {
+        color: #4361ee;
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      .back-link a:hover {
+        text-decoration: underline;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .alert-success {
+        background: #f0fff4;
+        border: 1px solid #9ae6b4;
+        color: #2f855a;
+      }
+
+      .alert-error {
+        background: #fff5f5;
+        border: 1px solid #fc8181;
+        color: #c53030;
+      }
+
+      .alert-show {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="reset-container">
+      <div class="warning-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h1>Reset Collections</h1>
+      <p class="subtitle">
+        Warning: This action cannot be undone. All data will be permanently
+        deleted.
+      </p>
+
+      <!-- Stats Display -->
+      <div class="stats-box">
+        <h3><i class="fas fa-chart-bar"></i> Current Collection Statistics</h3>
+        <div class="stat-item">
+          <span class="stat-label">Total Payments:</span>
+          <span class="stat-value" id="totalPayments">Loading...</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Collected:</span>
+          <span class="stat-value" id="totalCollected">Loading...</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Average Payment:</span>
+          <span class="stat-value" id="averagePayment">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Reset Options -->
+      <div class="danger-zone">
+        <h3><i class="fas fa-radiation"></i> Reset Options</h3>
+
+        <div class="reset-type">
+          <div class="reset-option">
+            <input
+              type="radio"
+              id="resetAll"
+              name="resetType"
+              value="all"
+              checked
+            />
+            <label for="resetAll">Reset ALL Payments</label>
+          </div>
+          <p class="reset-description">
+            Delete all payment records. Keeps students and fee categories.
+          </p>
+
+          <div class="reset-option">
+            <input
+              type="radio"
+              id="resetCurrentYear"
+              name="resetType"
+              value="current_year"
+            />
+            <label for="resetCurrentYear">Reset Current Year Only</label>
+          </div>
+          <p class="reset-description">
+            Delete payments for the current academic year only.
+          </p>
+
+          <div class="reset-option">
+            <input
+              type="radio"
+              id="resetBeforeDate"
+              name="resetType"
+              value="before_date"
+            />
+            <label for="resetBeforeDate">Reset Before Specific Date</label>
+          </div>
+          <p class="reset-description">
+            Delete payments before a specific date (keep recent payments).
+          </p>
+        </div>
+        <!-- Add this in the danger-zone section, after the reset options -->
+        <div class="form-group" style="margin-top: 20px">
+          <div class="checkbox-group">
+            <input
+              type="checkbox"
+              id="create_backup"
+              name="create_backup"
+              checked
+            />
+            <label for="create_backup" style="font-weight: 600; color: #2f855a">
+              <i class="fas fa-shield-alt"></i> Create backup before resetting
+              (Highly Recommended)
+            </label>
+          </div>
+          <p
+            style="
+              font-size: 0.9rem;
+              color: #718096;
+              margin-top: 5px;
+              margin-left: 26px;
+            "
+          >
+            A full database backup will be created automatically before any data
+            is deleted.
+          </p>
+        </div>
+
+        <!-- Date Input (Hidden by default) -->
+        <div id="dateInput" class="hidden">
+          <label
+            for="cutoffDate"
+            style="display: block; margin-bottom: 8px; color: #4a5568"
+          >
+            Delete payments before:
+          </label>
+          <input type="date" id="cutoffDate" name="cutoffDate" />
+        </div>
+      </div>
+
+      <!-- Confirmation -->
+      <div class="confirm-box">
+        <h3><i class="fas fa-shield-alt"></i> Confirmation Required</h3>
+        <p style="margin-bottom: 15px; color: #4a5568">
+          Type <strong>RESET</strong> in the box below to confirm:
+        </p>
+        <input type="text" id="confirmInput" placeholder="Type RESET here..." />
+        <p style="font-size: 0.9rem; color: #718096">
+          This action will permanently delete payment records. Make sure you
+          have backups if needed.
+        </p>
+      </div>
+
+      <!-- Alert Messages -->
+      <div id="successAlert" class="alert alert-success hidden">
+        <i class="fas fa-check-circle"></i>
+        <span id="successMessage">Reset completed successfully!</span>
+      </div>
+
+      <div id="errorAlert" class="alert alert-error hidden">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="errorMessage">An error occurred during reset.</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <button id="resetBtn" class="btn btn-danger" disabled>
+        <i class="fas fa-trash-alt"></i> Reset Collections
+      </button>
+
+      <button id="backBtn" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </button>
+
+      <div class="back-link">
+        <a href="/fees"><i class="fas fa-home"></i> Back to Fee Management</a>
+      </div>
+    </div>
+
+    <script>
+      // Load current statistics
+      document.addEventListener("DOMContentLoaded", function () {
+        loadStatistics();
+        setupEventListeners();
+      });
+
+      function loadStatistics() {
+        fetch("/fees/reset/stats")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              document.getElementById("totalPayments").textContent =
+                data.total_payments;
+              document.getElementById("totalCollected").textContent =
+                "KSh " + data.total_collected.toLocaleString();
+              document.getElementById("averagePayment").textContent =
+                "KSh " + data.average_payment.toLocaleString();
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading statistics:", error);
+            document.getElementById("totalPayments").textContent = "Error";
+            document.getElementById("totalCollected").textContent = "Error";
+            document.getElementById("averagePayment").textContent = "Error";
+          });
+      }
+
+      function setupEventListeners() {
+        const confirmInput = document.getElementById("confirmInput");
+        const resetBtn = document.getElementById("resetBtn");
+        const resetTypeRadios = document.querySelectorAll(
+          'input[name="resetType"]',
+        );
+        const dateInput = document.getElementById("dateInput");
+        const cutoffDate = document.getElementById("cutoffDate");
+
+        // Set default date to today
+        const today = new Date().toISOString().split("T")[0];
+        cutoffDate.value = today;
+        cutoffDate.max = today; // Can't select future dates
+
+        // Show/hide date input based on radio selection
+        resetTypeRadios.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            if (this.value === "before_date") {
+              dateInput.classList.remove("hidden");
+            } else {
+              dateInput.classList.add("hidden");
+            }
+            updateResetButton();
+          });
+        });
+
+        // Enable/disable reset button based on confirmation
+        confirmInput.addEventListener("input", updateResetButton);
+
+        // Reset button click
+        resetBtn.addEventListener("click", performReset);
+
+        // Back button
+        document
+          .getElementById("backBtn")
+          .addEventListener("click", function () {
+            window.location.href = "/fees";
+          });
+      }
+
+      function updateResetButton() {
+        const confirmInput = document.getElementById("confirmInput");
+        const resetBtn = document.getElementById("resetBtn");
+
+        if (confirmInput.value === "RESET") {
+          resetBtn.disabled = false;
+        } else {
+          resetBtn.disabled = true;
+        }
+      }
+
+      function performReset() {
+        const resetType = document.querySelector(
+          'input[name="resetType"]:checked',
+        ).value;
+        const cutoffDate = document.getElementById("cutoffDate").value;
+        const resetBtn = document.getElementById("resetBtn");
+
+        // Show loading state
+        const originalText = resetBtn.innerHTML;
+        resetBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+        resetBtn.disabled = true;
+
+        // Prepare request data
+        // In the performReset function, update the requestData:
+        const requestData = {
+          reset_type: resetType,
+          create_backup: document.getElementById("create_backup").checked
+            ? "true"
+            : "false",
+        };
+
+        if (resetType === "before_date" && cutoffDate) {
+          requestData.cutoff_date = cutoffDate;
+        }
+
+        // Send reset request
+        fetch("/fees/reset/perform", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showAlert("success", data.message);
+
+              // Update statistics
+              setTimeout(loadStatistics, 1000);
+
+              // Clear confirmation input
+              document.getElementById("confirmInput").value = "";
+              updateResetButton();
+            } else {
+              showAlert("error", data.message);
+            }
+          })
+          .catch((error) => {
+            showAlert("error", "Network error: " + error.message);
+          })
+          .finally(() => {
+            // Restore button state
+            resetBtn.innerHTML = originalText;
+            resetBtn.disabled = false;
+          });
+      }
+
+      function showAlert(type, message) {
+        // Hide all alerts first
+        document.getElementById("successAlert").classList.remove("alert-show");
+        document.getElementById("errorAlert").classList.remove("alert-show");
+
+        if (type === "success") {
+          document.getElementById("successMessage").textContent = message;
+          document.getElementById("successAlert").classList.add("alert-show");
+        } else {
+          document.getElementById("errorMessage").textContent = message;
+          document.getElementById("errorAlert").classList.add("alert-show");
+        }
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          document
+            .getElementById("successAlert")
+            .classList.remove("alert-show");
+          document.getElementById("errorAlert").classList.remove("alert-show");
+        }, 5000);
+      }
+    </script>
+  </body>
+</html>

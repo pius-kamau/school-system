@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #<%= receipt.receipt_number %></title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* A5 SIZE: 148mm × 210mm */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 5mm;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        
+        .receipt-container {
+            width: 138mm; /* Slightly smaller than A5 to account for margins */
+            min-height: 190mm; /* Allow some room */
+            margin: 0 auto;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #ddd;
+        }
+        
+        .receipt-header {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+            padding: 8px 10px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .receipt-number {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .school-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        
+        .school-motto {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .receipt-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+        
+        .receipt-body {
+            padding: 10px;
+        }
+        
+        /* COMPACT GRID LAYOUT */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 2px solid #4361ee;
+        }
+        
+        .info-section h3 {
+            color: #4361ee;
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .info-section h3 i {
+            font-size: 0.8rem;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            padding-bottom: 3px;
+            border-bottom: 1px dashed #ddd;
+            font-size: 0.8rem;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #333;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.8rem;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        /* AMOUNT SECTION - MORE COMPACT */
+        .amount-section {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .amount-section h3 {
+            color: #4361ee;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .amount-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .amount-row.total {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #28a745;
+            padding-top: 8px;
+            border-top: 2px solid #dee2e6;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+        
+        /* COMPACT SIGNATURES */
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #dee2e6;
+            font-size: 0.7rem;
+        }
+        
+        .signature {
+            text-align: center;
+            flex: 1;
+            padding: 0 5px;
+        }
+        
+        .signature-line {
+            height: 1px;
+            background: #333;
+            margin: 6px auto 4px;
+            width: 80%;
+        }
+        
+        /* COMPACT FOOTER */
+        .footer {
+            text-align: center;
+            padding: 8px 10px;
+            background: #f8f9fa;
+            color: #666;
+            font-size: 0.65rem;
+            border-top: 1px solid #dee2e6;
+            line-height: 1.2;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-partial {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-unpaid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .print-btn {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            z-index: 1000;
+        }
+        
+        .print-btn:hover {
+            background: #3a0ca3;
+        }
+        
+        /* PRINT STYLES - SINGLE PAGE A5 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+                width: 148mm;
+                height: 210mm;
+            }
+            
+            .receipt-container {
+                box-shadow: none;
+                border-radius: 0;
+                border: none;
+                width: 148mm;
+                min-height: 200mm; /* Allow some margin */
+                margin: 0;
+                page-break-inside: avoid;
+                page-break-after: avoid;
+            }
+            
+            .print-btn {
+                display: none;
+            }
+            
+            /* A5 PAGE SETUP WITH MINIMAL MARGINS */
+            @page {
+                size: A5;
+                margin: 5mm;
+            }
+            
+            /* Ensure everything fits on one page */
+            .receipt-header,
+            .receipt-body,
+            .footer {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Responsive for very small screens */
+        @media (max-width: 160mm) {
+            body {
+                padding: 2mm;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="receipt-container">
+        <!-- Header -->
+        <div class="receipt-header">
+            <div class="receipt-number">#<%= receipt.receipt_number %></div>
+            
+            <div class="school-name">EXCELLENCE ACADEMY</div>
+            <div class="school-motto">"Knowledge, Excellence, Integrity"</div>
+            
+            <div class="receipt-title">FEE PAYMENT RECEIPT</div>
+        </div>
+        
+        <!-- Body -->
+        <div class="receipt-body">
+            <!-- Student & Payment Info Grid -->
+            <div class="info-grid">
+                <!-- Student Information -->
+                <div class="info-section">
+                    <h3><i class="fas fa-user-graduate"></i> STUDENT</h3>
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value"><%= student.name || 'N/A' %></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Admission:</span>
+                        <span class="info-value"><%= student.admission_number || 'N/A' %></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Class:</span>
+                        <span class="info-value"><%= student.class || 'N/A' %></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ID:</span>
+                        <span class="info-value"><%= receipt.student_id %></span>
+                    </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="info-section">
+                    <h3><i class="fas fa-credit-card"></i> PAYMENT</h3>
+                    <div class="info-row">
+                        <span class="info-label">Date:</span>
+                        <span class="info-value">
+                            <%= new Date(receipt.payment_date).toLocaleDateString('en-GB', { 
+                                day: '2-digit', 
+                                month: 'short', 
+                                year: 'numeric' 
+                            }) %>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Year:</span>
+                        <span class="info-value"><%= receipt.academic_year %></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Term:</span>
+                        <span class="info-value"><%= receipt.term %></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge status-<%= (receipt.status || '').toLowerCase() %>">
+                                <%= receipt.status %>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fee Details -->
+            <div class="info-section">
+                <h3><i class="fas fa-tags"></i> FEE DETAILS</h3>
+                <div class="info-row">
+                    <span class="info-label">Category:</span>
+                    <span class="info-value"><%= receipt.fee_type || (category ? category.name : 'N/A') %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount Due:</span>
+                    <span class="info-value">KSh <%= parseFloat(receipt.amount_due || receipt.amount_paid || 0).toLocaleString() %></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount Paid:</span>
+                    <span class="info-value" style="color: #28a745;">
+                        KSh <%= parseFloat(receipt.amount_paid || 0).toLocaleString() %>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Balance:</span>
+                    <span class="info-value" style="color: #dc3545;">
+                        KSh <%= parseFloat(receipt.balance || 0).toLocaleString() %>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="info-section">
+                <h3><i class="fas fa-money-check-alt"></i> PAYMENT METHOD</h3>
+                <div class="info-row">
+                    <span class="info-label">Method:</span>
+                    <span class="info-value"><%= receipt.payment_method || 'Cash' %></span>
+                </div>
+                <% if(receipt.payment_method === 'MPesa' && receipt.mpesa_code) { %>
+                    <div class="info-row">
+                        <span class="info-label">MPesa Code:</span>
+                        <span class="info-value"><%= receipt.mpesa_code %></span>
+                    </div>
+                <% } %>
+            </div>
+            
+            <!-- Amount Summary -->
+            <div class="amount-section">
+                <h3><i class="fas fa-file-invoice-dollar"></i> AMOUNT SUMMARY</h3>
+                
+                <div class="amount-row">
+                    <span>Amount Due:</span>
+                    <span>KSh <%= parseFloat(receipt.amount_due || receipt.amount_paid || 0).toLocaleString() %></span>
+                </div>
+                
+                <div class="amount-row">
+                    <span>Amount Paid:</span>
+                    <span style="color: #28a745; font-weight: 600;">
+                        KSh <%= parseFloat(receipt.amount_paid || 0).toLocaleString() %>
+                    </span>
+                </div>
+                
+                <div class="amount-row">
+                    <span>Balance:</span>
+                    <span style="color: #dc3545; font-weight: 600;">
+                        KSh <%= parseFloat(receipt.balance || 0).toLocaleString() %>
+                    </span>
+                </div>
+                
+                <div class="amount-row total">
+                    <span>TOTAL PAID:</span>
+                    <span>KSh <%= parseFloat(receipt.amount_paid || 0).toLocaleString() %></span>
+                </div>
+            </div>
+            
+            <!-- Compact Signatures -->
+            <div class="signature-section">
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div style="font-weight: 600; color: #4361ee;">Student/Parent</div>
+                    <div style="color: #666;">Signature & Date</div>
+                </div>
+                
+                <div class="signature">
+                    <div class="signature-line"></div>
+                    <div style="font-weight: 600; color: #4361ee;">School Bursar</div>
+                    <div style="color: #666;">Stamp & Signature</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>
+                <strong>EXCELLENCE ACADEMY</strong> | P.O. Box 12345, Nairobi
+            </p>
+            <p style="margin-top: 3px;">
+                Phone: +254 700 000 000 | Email: info@excellence.ac.ke
+            </p>
+            <p style="margin-top: 3px; color: #999;">
+                Computer generated receipt | Generated: <%= new Date().toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) %>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Print Button -->
+    <button class="print-btn" onclick="window.print()">
+        <i class="fas fa-print"></i> Print
+    </button>
+    
+    <script>
+        // Auto-focus print button for keyboard navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add safety check for receipt data
+            if (typeof receipt === 'undefined') {
+                console.warn('Receipt data not loaded properly');
+            }
+            
+            // Auto-print after 1 second (optional - uncomment if needed)
+            // setTimeout(function() {
+            //     window.print();
+            // }, 1000);
+        });
+    </script>
+</body>
+</html>
