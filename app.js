@@ -11,6 +11,7 @@ const multer = require('multer');
 const feesRoutes = require('./routes/fees-complete'); // ← KEEP THIS ONE
 const reportsRoutes = require('./routes/reports');
 const examRoutes = require('./routes/exam-routes');
+const examManagementRoutes = require('./routes/exam-management');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(express.urlencoded({ extended: true })); // This is already here for for
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.use('/exams', examManagementRoutes);
 
 // --- File Upload Configuration ---
 const storage = multer.diskStorage({

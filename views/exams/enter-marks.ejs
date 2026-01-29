@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - School Management System</title>
+    <style>
+        :root {
+            --primary: #ff416c;
+            --secondary: #ff4b2b;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: var(--dark);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff2b5b;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+        }
+
+        /* Exam Info Card */
+        .exam-info-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid var(--primary);
+        }
+
+        .exam-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .exam-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Success Message */
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        /* Marks Entry Form */
+        .marks-form {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .marks-table thead {
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+        }
+
+        .marks-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #eaeaea;
+            white-space: nowrap;
+        }
+
+        .marks-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eaeaea;
+            vertical-align: middle;
+        }
+
+        .marks-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Input Styles */
+        .marks-input {
+            width: 100px;
+            padding: 8px 12px;
+            border: 2px solid #eaeaea;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .marks-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 65, 108, 0.1);
+        }
+
+        .remarks-input {
+            width: 200px;
+            padding: 8px 12px;
+            border: 2px solid #eaeaea;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .remarks-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Grade Badges */
+        .grade-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .grade-a { background: #d4edda; color: #155724; }
+        .grade-b { background: #cce5ff; color: #004085; }
+        .grade-c { background: #fff3cd; color: #856404; }
+        .grade-d { background: #f8d7da; color: #721c24; }
+        .grade-e { background: #e2e3e5; color: #383d41; }
+        .grade-na { background: #f8f9fa; color: #6c757d; font-style: italic; }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+            margin-top: 10px;
+        }
+
+        .stats {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .marks-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .marks-input {
+                width: 80px;
+            }
+            
+            .remarks-input {
+                width: 150px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .exam-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">School Management System</a>
+            <div class="nav-links">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/students" class="nav-link">Students</a>
+                <a href="/teachers" class="nav-link">Teachers</a>
+                <a href="/attendance/dashboard" class="nav-link">Attendance</a>
+                <a href="/fees" class="nav-link">Fees</a>
+                <a href="/reports" class="nav-link">Reports</a>
+                <a href="/exams/manage" class="nav-link active">Exams</a>
+                <div class="user-info">
+                    <span><%= user.username %></span>
+                    <span>(<%= user.role %>)</span>
+                </div>
+                <a href="/logout" class="nav-link">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Enter Exam Marks</h1>
+            <div class="action-buttons">
+                <a href="/exams/manage" class="btn btn-secondary">
+                    <i>←</i> Back to Exams
+                </a>
+                <a href="/exams/view/<%= exam.id %>" class="btn btn-info">
+                    <i>📊</i> View Results
+                </a>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <% if (success) { %>
+        <div class="alert alert-success">
+            ✅ Marks saved successfully! 
+            <% if (req.query.saved) { %>
+                (<%= req.query.saved %> students updated)
+            <% } %>
+        </div>
+        <% } %>
+
+        <!-- Exam Information -->
+        <div class="exam-info-card">
+            <div class="exam-info-grid">
+                <div class="exam-info-item">
+                    <span class="info-label">Exam</span>
+                    <span class="info-value"><%= exam.name %></span>
+                </div>
+                <div class="exam-info-item">
+                    <span class="info-label">Subject</span>
+                    <span class="info-value"><%= exam.subject_name %></span>
+                </div>
+                <div class="exam-info-item">
+                    <span class="info-label">Class</span>
+                    <span class="info-value"><%= exam.class_name %></span>
+                </div>
+                <div class="exam-info-item">
+                    <span class="info-label">Date</span>
+                    <span class="info-value"><%= new Date(exam.exam_date).toLocaleDateString('en-KE') %></span>
+                </div>
+                <div class="exam-info-item">
+                    <span class="info-label">Total Marks</span>
+                    <span class="info-value"><%= exam.total_marks %></span>
+                </div>
+                <div class="exam-info-item">
+                    <span class="info-label">Pass Marks</span>
+                    <span class="info-value"><%= exam.pass_marks %></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marks Entry Form -->
+        <div class="marks-form">
+            <form method="POST" action="/exams/<%= exam.id %>/marks" id="marksForm">
+                <table class="marks-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student Name</th>
+                            <th>Admission No.</th>
+                            <th>Class</th>
+                            <th>Marks (out of <%= exam.total_marks %>)</th>
+                            <th>Grade</th>
+                            <th>Remarks</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% students.forEach((student, index) => { 
+                            const gradeClass = student.grade === 'A' ? 'grade-a' :
+                                             student.grade === 'B' ? 'grade-b' :
+                                             student.grade === 'C' ? 'grade-c' :
+                                             student.grade === 'D' ? 'grade-d' :
+                                             student.grade === 'E' ? 'grade-e' : 'grade-na';
+                        %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= student.name %></td>
+                            <td><%= student.admission_number %></td>
+                            <td><%= student.class %></td>
+                            <td>
+                                <input type="number" 
+                                       name="marks[<%= student.id %>]" 
+                                       class="marks-input" 
+                                       value="<%= student.marks_obtained || '' %>" 
+                                       min="0" 
+                                       max="<%= exam.total_marks %>" 
+                                       step="0.5"
+                                       placeholder="0-<%= exam.total_marks %>"
+                                       onchange="calculateGrade(this, <%= exam.total_marks %>, '<%= student.id %>')">
+                            </td>
+                            <td>
+                                <span id="grade-<%= student.id %>" class="grade-badge <%= gradeClass %>">
+                                    <%= student.grade || 'N/A' %>
+                                </span>
+                            </td>
+                            <td>
+                                <input type="text" 
+                                       name="remarks[<%= student.id %>]" 
+                                       class="remarks-input" 
+                                       value="<%= student.remarks || '' %>" 
+                                       placeholder="Optional remarks">
+                            </td>
+                            <td>
+                                <% if (student.result_id) { %>
+                                <span style="color: var(--success); font-size: 12px; font-weight: 500;">✅ Saved</span>
+                                <% } else { %>
+                                <span style="color: #999; font-size: 12px;">Not saved</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+                
+                <div class="form-actions">
+                    <div class="stats">
+                        <%= students.length %> students in <%= exam.class_name %>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-success">
+                            <i>💾</i> Save All Marks
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Grading Guide -->
+        <div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid var(--info);">
+            <h3 style="margin-bottom: 10px; color: var(--dark);">📊 Grading System</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                <div style="background: #d4edda; padding: 10px; border-radius: 6px; text-align: center;">
+                    <strong style="display: block; font-size: 16px;">A (80-100%)</strong>
+                    <small>Excellent</small>
+                </div>
+                <div style="background: #cce5ff; padding: 10px; border-radius: 6px; text-align: center;">
+                    <strong style="display: block; font-size: 16px;">B (65-79%)</strong>
+                    <small>Good</small>
+                </div>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; text-align: center;">
+                    <strong style="display: block; font-size: 16px;">C (50-64%)</strong>
+                    <small>Average</small>
+                </div>
+                <div style="background: #f8d7da; padding: 10px; border-radius: 6px; text-align: center;">
+                    <strong style="display: block; font-size: 16px;">D (35-49%)</strong>
+                    <small>Below Average</small>
+                </div>
+                <div style="background: #e2e3e5; padding: 10px; border-radius: 6px; text-align: center;">
+                    <strong style="display: block; font-size: 16px;">E (0-34%)</strong>
+                    <small>Fail</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to calculate grade based on marks
+        function calculateGrade(inputElement, totalMarks, studentId) {
+            const marks = parseFloat(inputElement.value);
+            
+            if (isNaN(marks) || marks < 0) {
+                document.getElementById(`grade-${studentId}`).textContent = 'N/A';
+                document.getElementById(`grade-${studentId}`).className = 'grade-badge grade-na';
+                return;
+            }
+            
+            const percentage = (marks / totalMarks) * 100;
+            let grade = 'E';
+            let gradeClass = 'grade-e';
+            
+            if (percentage >= 80) {
+                grade = 'A';
+                gradeClass = 'grade-a';
+            } else if (percentage >= 75) {
+                grade = 'A-';
+                gradeClass = 'grade-a';
+            } else if (percentage >= 70) {
+                grade = 'B+';
+                gradeClass = 'grade-b';
+            } else if (percentage >= 65) {
+                grade = 'B';
+                gradeClass = 'grade-b';
+            } else if (percentage >= 60) {
+                grade = 'B-';
+                gradeClass = 'grade-b';
+            } else if (percentage >= 55) {
+                grade = 'C+';
+                gradeClass = 'grade-c';
+            } else if (percentage >= 50) {
+                grade = 'C';
+                gradeClass = 'grade-c';
+            } else if (percentage >= 45) {
+                grade = 'C-';
+                gradeClass = 'grade-c';
+            } else if (percentage >= 40) {
+                grade = 'D+';
+                gradeClass = 'grade-d';
+            } else if (percentage >= 35) {
+                grade = 'D';
+                gradeClass = 'grade-d';
+            } else if (percentage >= 30) {
+                grade = 'D-';
+                gradeClass = 'grade-d';
+            }
+            
+            const gradeElement = document.getElementById(`grade-${studentId}`);
+            gradeElement.textContent = grade;
+            gradeElement.className = `grade-badge ${gradeClass}`;
+        }
+        
+        // Form validation
+        document.getElementById('marksForm').addEventListener('submit', function(e) {
+            let hasErrors = false;
+            const marksInputs = document.querySelectorAll('.marks-input');
+            
+            marksInputs.forEach(input => {
+                const marks = parseFloat(input.value);
+                if (!isNaN(marks)) {
+                    const maxMarks = parseFloat(input.max);
+                    if (marks > maxMarks) {
+                        alert(`Marks cannot exceed ${maxMarks} for ${input.name}`);
+                        input.focus();
+                        hasErrors = true;
+                        e.preventDefault();
+                    }
+                }
+            });
+            
+            if (hasErrors) {
+                return false;
+            }
+            
+            // Confirm if there are many empty fields
+            const filledInputs = Array.from(marksInputs).filter(input => input.value.trim() !== '').length;
+            if (filledInputs === 0) {
+                if (!confirm('No marks have been entered. Save empty marks?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        // Auto-save on Enter key
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('marksForm').submit();
+            }
+        });
+    </script>
+</body>
+</html>
